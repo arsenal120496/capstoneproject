@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imgNavHeaderBg, imgProfile;
     private TextView txtName;
     private Toolbar toolbar;
-    private FloatingActionButton fab;
 
     // urls to load navigation header background image
     // and profile image
@@ -68,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         // Navigation view header
         navHeader = navigationView.getHeaderView(0);
@@ -138,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
             drawer.closeDrawers();
 
             // show or hide the fab button
-            toggleFab();
             return;
         }
 
@@ -164,8 +161,6 @@ public class MainActivity extends AppCompatActivity {
             mHandler.post(mPendingRunnable);
         }
 
-        // show or hide the fab button
-        toggleFab();
 
         //Closing drawer on item click
         drawer.closeDrawers();
@@ -296,13 +291,4 @@ public class MainActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-
-
-    // show or hide the fab
-    public void toggleFab() {
-        if (navItemIndex == 0)
-            fab.show();
-        else
-            fab.hide();
-    }
 }

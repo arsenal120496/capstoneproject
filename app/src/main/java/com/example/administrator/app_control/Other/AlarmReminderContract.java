@@ -32,6 +32,10 @@ public class AlarmReminderContract {
 
         public  static String KEY_REPEAT = "repeat";
 
+        public static final String KEY_REPEAT_NO = "repeat_no";
+
+        public static final String KEY_REPEAT_TYPE = "repeat_type";
+
         public  static String KEY_ACTIVE = "active";
 
     }

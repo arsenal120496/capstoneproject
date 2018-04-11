@@ -4,6 +4,7 @@ import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -20,23 +21,19 @@ import android.widget.ProgressBar;
 
 import com.example.administrator.app_control.Activity.AddReminderActivity;
 import com.example.administrator.app_control.Activity.R;
+import com.example.administrator.app_control.Other.AlarmCursorApdater;
+import com.example.administrator.app_control.Other.AlarmReminderContract;
 import com.example.administrator.app_control.Other.AlarmReminderDbHelper;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ScheduleFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ScheduleFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+public class ScheduleFragment extends Fragment {
     private FloatingActionButton btnAddRemider;
     AlarmCursorApdater alarmCursorApdater;
     AlarmReminderDbHelper alarmReminderDbHelper;
     private FloatingActionButton btnFab;
     ListView itemListView;
     ProgressDialog prgDialog;
+    Context context;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -49,11 +46,24 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         itemListView = (ListView) getActivity().findViewById(R.id.listview);
+
+
         View emptyView = getActivity().findViewById(R.id.empty_view);
         itemListView.setEmptyView(emptyView);
 
-        alarmCursorApdater = new AlarmCursorApdater(this,null);
+        alarmCursorApdater = new AlarmCursorApdater(getContext(),null);
         itemListView.setAdapter(alarmCursorApdater);
+
+        context = this.getContext();
+        btnAddRemider = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+
+        btnAddRemider.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, AddReminderActivity.class);
+                startActivity(intent);
+            }
+        });
 
         itemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -68,35 +78,36 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
             }
         });
 
-        btnAddRemider = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-
-        btnAddRemider.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), AddReminderActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        getLoaderManager().initLoader(0,null,null);
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        String[] projection = {
-
-        };
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        alarmCursorApdater.swapCursor(cursor);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        alarmCursorApdater.swapCursor(null);
-    }
+//    @Override
+//    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+//        String[] projection = {
+//                AlarmReminderContract.AlarmRemiderEntry._ID,
+//                AlarmReminderContract.AlarmRemiderEntry.KEY_NAME,
+//                AlarmReminderContract.AlarmRemiderEntry.KEY_TIME,
+//                AlarmReminderContract.AlarmRemiderEntry.KEY_REPEAT,
+//                AlarmReminderContract.AlarmRemiderEntry.KEY_REPEAT_NO,
+//                AlarmReminderContract.AlarmRemiderEntry.KEY_REPEAT_TYPE,
+//                AlarmReminderContract.AlarmRemiderEntry.KEY_ACTIVE
+//
+//        };
+//        return new CursorLoader(getContext(),   // Parent activity context
+//                AlarmReminderContract.AlarmRemiderEntry.CONTENT_URI,   // Provider content URI to query
+//                projection,             // Columns to include in the resulting Cursor
+//                null,                   // No selection clause
+//                null,                   // No selection arguments
+//                null);
+//    }
+//
+//    @Override
+//    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+//        alarmCursorApdater.swapCursor(cursor);
+//    }
+//
+//    @Override
+//    public void onLoaderReset(Loader<Cursor> loader) {
+//        alarmCursorApdater.swapCursor(null);
+//    }
 
 }

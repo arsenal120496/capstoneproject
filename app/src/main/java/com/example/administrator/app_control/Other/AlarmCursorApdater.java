@@ -41,14 +41,12 @@ public class AlarmCursorApdater extends CursorAdapter {
         int titleColumnIndex = cursor.getColumnIndex(AlarmReminderContract.AlarmRemiderEntry.KEY_NAME);
         int timeColumnIndex = cursor.getColumnIndex(AlarmReminderContract.AlarmRemiderEntry.KEY_TIME);
         int repeatColumnIndex = cursor.getColumnIndex(AlarmReminderContract.AlarmRemiderEntry.KEY_REPEAT);
-        int repeatNoColumnIndex = cursor.getColumnIndex(AlarmReminderContract.AlarmRemiderEntry.KEY_REPEAT_NO);
         int repeatTypeColumnIndex = cursor.getColumnIndex(AlarmReminderContract.AlarmRemiderEntry.KEY_REPEAT_TYPE);
         int activeColumnIndex = cursor.getColumnIndex(AlarmReminderContract.AlarmRemiderEntry.KEY_ACTIVE);
 
         String title = cursor.getString(titleColumnIndex);
         String time = cursor.getString(timeColumnIndex);
         String repeat = cursor.getString(repeatColumnIndex);
-        String repeatNo = cursor.getString(repeatNoColumnIndex);
         String repeatType = cursor.getString(repeatTypeColumnIndex);
         String active = cursor.getString(activeColumnIndex);
 
@@ -57,7 +55,7 @@ public class AlarmCursorApdater extends CursorAdapter {
 
         setReminderTitle(title);
         setReminderDateTime(dateTime);
-        setReminderRepeatInfo(repeat, repeatNo, repeatType);
+        setReminderRepeatInfo(repeat, repeatType);
         setActiveImage(active);
 
 
@@ -88,9 +86,9 @@ public class AlarmCursorApdater extends CursorAdapter {
     }
 
     // Set repeat views
-    public void setReminderRepeatInfo(String repeat, String repeatNo, String repeatType) {
+    public void setReminderRepeatInfo(String repeat, String repeatType) {
         if(repeat.equals("true")){
-            mRepeatInfoText.setText("Every " + repeatNo + " " + repeatType + "(s)");
+            mRepeatInfoText.setText("Every " + " " + repeatType + "(s)");
         }else if (repeat.equals("false")) {
             mRepeatInfoText.setText("Repeat Off");
         }

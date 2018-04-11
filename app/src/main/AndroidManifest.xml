@@ -34,9 +34,6 @@
             android:name="org.eclipse.paho.android.service.MqttService"
             android:stopWithTask="true" />
 
-        <service
-            android:name=".reminder.ReminderAlarmService"
-            android:exported="false" />
 
 
     </application>

@@ -5,18 +5,22 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.LoaderManager;
 import android.app.TimePickerDialog;
 import android.content.Context;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
 
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,7 +32,10 @@ import android.widget.Toast;
 
 
 import com.example.administrator.app_control.Fragment.ScheduleFragment;
+import com.example.administrator.app_control.Other.AlarmReminderDbHelper;
 import com.example.administrator.app_control.Other.Item;
+import com.example.administrator.app_control.Activity.R;
+import com.example.administrator.app_control.Other.ItemListView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,11 +52,9 @@ public class AddReminderActivity extends AppCompatActivity
     RelativeLayout relativeLayoutTime,relativeRepeat;
     private Calendar mCalendar;
     private int mHour, mMinute;
-    private long repeat;
     private Switch mRepeatSwitch;
     private String name;
     private String mRepeatType;
-    private String active;
     private Button btnOK;
 
     private TimePickerDialog timePickerDialog;
@@ -69,6 +74,10 @@ public class AddReminderActivity extends AppCompatActivity
 
     public  static String KEY_ACTIVE = "active_key";
 
+    private boolean mVehicleHasChanged = false;
+
+    private Uri mCurrentReminderUri;
+
     private static final long milMinute = 60000L;
     private static final long milHour = 3600000L;
     private static final long milDay = 86400000L;
@@ -76,8 +85,18 @@ public class AddReminderActivity extends AppCompatActivity
     private static final long milMonth = 2592000000L;
 
     private ArrayList<Item> arr;
+    private AlarmReminderDbHelper myDB;
+    private Handler mHandler;
 
     Context context;
+
+    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            mVehicleHasChanged = true;
+            return false;
+        }
+    };
 
 
     @Override
@@ -89,7 +108,7 @@ public class AddReminderActivity extends AppCompatActivity
         mHour = mCalendar.get(Calendar.HOUR_OF_DAY);
         mMinute = mCalendar.get(Calendar.MINUTE);
         mRepeatType = "";
-        arr = new ArrayList<>();
+        mHandler = null;
         txtName = (EditText) findViewById(R.id.schedule_title);
         relativeLayoutTime = (RelativeLayout) findViewById(R.id.time);
         relativeRepeat = (RelativeLayout) findViewById(R.id.RepeatType);
@@ -193,14 +212,20 @@ public class AddReminderActivity extends AppCompatActivity
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Item i = new Item();
-                i.setName(txtName.getText().toString());
-                i.setTime(mTimeText.getText().toString());
-                i.setRepeat(mRepeatType);
-                arr.add(i);
+                myDB = new AlarmReminderDbHelper(getBaseContext());
+                boolean checked = mRepeatSwitch.isChecked();
+                if (checked) {
+                    myDB.insertData(txtName.getText().toString(),mTimeText.getText().toString(),"true",mRepeatType);
+                } else {
+                    myDB.insertData(txtName.getText().toString(),mTimeText.getText().toString(),"false",mRepeatType);
+                }
 
-                Intent send = new Intent(getApplicationContext(),ScheduleFragment.class);
-                send.putExtra("list",arr);
+                        ScheduleFragment fragment = new ScheduleFragment();
+                        android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                        fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
+                                android.R.anim.fade_out);
+                        fragmentTransaction.replace(R.id.frame, fragment);
+                        fragmentTransaction.commitAllowingStateLoss();
 
 
             }

@@ -4,11 +4,21 @@ public class Item {
     String name;
     String time;
     String repeat;
+    String repeatype;
 
-    public void Item ( String name , String time , String repeat){
+    public void Item ( String name , String time , String repeat,String repeatype){
         name = this.name;
         time = this.time;
         repeat = this.repeat;
+        repeatype = this.repeatype;
+    }
+
+    public void setRepeatype(String repeatype) {
+        this.repeatype = repeatype;
+    }
+
+    public String getRepeatype() {
+        return repeatype;
     }
 
     public void setName(String name) {

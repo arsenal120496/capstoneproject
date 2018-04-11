@@ -18,21 +18,27 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.administrator.app_control.Activity.AddReminderActivity;
 import com.example.administrator.app_control.Activity.R;
 import com.example.administrator.app_control.Other.AlarmCursorApdater;
 import com.example.administrator.app_control.Other.AlarmReminderContract;
 import com.example.administrator.app_control.Other.AlarmReminderDbHelper;
+import com.example.administrator.app_control.Other.Item;
+import com.example.administrator.app_control.Other.ItemListView;
+
+import java.util.ArrayList;
 
 
-public class ScheduleFragment extends Fragment {
+public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private FloatingActionButton btnAddRemider;
-    AlarmCursorApdater alarmCursorApdater;
+    AlarmCursorApdater mCursorAdapter;
     AlarmReminderDbHelper alarmReminderDbHelper;
     private FloatingActionButton btnFab;
     ListView itemListView;
     ProgressDialog prgDialog;
+    ArrayList<Item> arr = null;
     Context context;
 
     @Override
@@ -46,13 +52,17 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         itemListView = (ListView) getActivity().findViewById(R.id.listview);
+        arr = ItemListView.getList();
+        if(arr == null){
+            View emptyView = getActivity().findViewById(R.id.empty_view);
+            itemListView.setEmptyView(emptyView);
+        } else {
+            mCursorAdapter = new AlarmCursorApdater(getActivity(), null);
+            itemListView.setAdapter(mCursorAdapter);
+        }
 
-
-        View emptyView = getActivity().findViewById(R.id.empty_view);
-        itemListView.setEmptyView(emptyView);
-
-        alarmCursorApdater = new AlarmCursorApdater(getContext(),null);
-        itemListView.setAdapter(alarmCursorApdater);
+        mCursorAdapter = new AlarmCursorApdater(getContext(),null);
+        itemListView.setAdapter(mCursorAdapter);
 
         context = this.getContext();
         btnAddRemider = (FloatingActionButton) getActivity().findViewById(R.id.fab);
@@ -80,34 +90,35 @@ public class ScheduleFragment extends Fragment {
 
     }
 
-//    @Override
-//    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-//        String[] projection = {
-//                AlarmReminderContract.AlarmRemiderEntry._ID,
-//                AlarmReminderContract.AlarmRemiderEntry.KEY_NAME,
-//                AlarmReminderContract.AlarmRemiderEntry.KEY_TIME,
-//                AlarmReminderContract.AlarmRemiderEntry.KEY_REPEAT,
-//                AlarmReminderContract.AlarmRemiderEntry.KEY_REPEAT_NO,
-//                AlarmReminderContract.AlarmRemiderEntry.KEY_REPEAT_TYPE,
-//                AlarmReminderContract.AlarmRemiderEntry.KEY_ACTIVE
-//
-//        };
-//        return new CursorLoader(getContext(),   // Parent activity context
-//                AlarmReminderContract.AlarmRemiderEntry.CONTENT_URI,   // Provider content URI to query
-//                projection,             // Columns to include in the resulting Cursor
-//                null,                   // No selection clause
-//                null,                   // No selection arguments
-//                null);
-//    }
-//
-//    @Override
-//    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-//        alarmCursorApdater.swapCursor(cursor);
-//    }
-//
-//    @Override
-//    public void onLoaderReset(Loader<Cursor> loader) {
-//        alarmCursorApdater.swapCursor(null);
-//    }
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String[] projection = {
+                AlarmReminderContract.AlarmRemiderEntry._ID,
+                AlarmReminderContract.AlarmRemiderEntry.KEY_NAME,
+                AlarmReminderContract.AlarmRemiderEntry.KEY_TIME,
+                AlarmReminderContract.AlarmRemiderEntry.KEY_REPEAT,
+                AlarmReminderContract.AlarmRemiderEntry.KEY_REPEAT_TYPE
+        };
+        return new CursorLoader(getContext(),   // Parent activity context
+                AlarmReminderContract.AlarmRemiderEntry.CONTENT_URI,   // Provider content URI to query
+                projection,             // Columns to include in the resulting Cursor
+                null,                   // No selection clause
+                null,                   // No selection arguments
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        mCursorAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mCursorAdapter.swapCursor(null);
+    }
 
 }

@@ -61,65 +61,65 @@ public class RobotActivity extends AppCompatActivity {
             }
         });
 
-        btnForward.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if(mqttHelper != null) {
-                        mqttHelper.publishMessage("forward", "control");
-                    }
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        btnBackward.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if(mqttHelper != null) {
-                        mqttHelper.publishMessage("backward", "control");
-                    }
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        btnLeft.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if(mqttHelper != null) {
-                        mqttHelper.publishMessage("left", "control");
-                    }
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        btnRight.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if(mqttHelper != null) {
-                        mqttHelper.publishMessage("right", "control");
-                    }
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+//        btnForward.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                try {
+//                    if(mqttHelper != null) {
+//                        mqttHelper.publishMessage("forward", "control");
+//                    }
+//                } catch (MqttException e) {
+//                    e.printStackTrace();
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//
+//        btnBackward.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                try {
+//                    if(mqttHelper != null) {
+//                        mqttHelper.publishMessage("backward", "control");
+//                    }
+//                } catch (MqttException e) {
+//                    e.printStackTrace();
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//
+//        btnLeft.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                try {
+//                    if(mqttHelper != null) {
+//                        mqttHelper.publishMessage("left", "control");
+//                    }
+//                } catch (MqttException e) {
+//                    e.printStackTrace();
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//
+//        btnRight.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                try {
+//                    if(mqttHelper != null) {
+//                        mqttHelper.publishMessage("right", "control");
+//                    }
+//                } catch (MqttException e) {
+//                    e.printStackTrace();
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
 
     }
 }

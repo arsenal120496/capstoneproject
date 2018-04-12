@@ -7,6 +7,11 @@
     android:fitsSystemWindows="true"
     >
 
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/app_bar_main" />
+
     <FrameLayout
         android:id="@+id/frame"
         android:layout_width="match_parent"

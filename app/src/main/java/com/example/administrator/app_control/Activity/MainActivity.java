@@ -13,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imgNavHeaderBg, imgProfile;
     private TextView txtName;
     private Toolbar toolbar;
+
 
     // urls to load navigation header background image
     // and profile image

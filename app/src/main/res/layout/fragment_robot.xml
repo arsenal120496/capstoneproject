@@ -57,36 +57,7 @@
             android:text="right"
             android:textColor="#33434C" />
 
-        <EditText
-            android:id="@+id/txtIP"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="40dp"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:text="IP:port" />
 
-        <Button
-            android:id="@+id/btnConnect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="94dp"
-            android:text="Connect" />
-
-        <Button
-            android:id="@+id/btnDisconnect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="94dp"
-            android:text="Disconnect"
-            android:visibility="invisible"
-            />
     </RelativeLayout>
 
 

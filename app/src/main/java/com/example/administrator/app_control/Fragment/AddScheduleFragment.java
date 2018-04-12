@@ -1,27 +1,14 @@
-package com.example.administrator.app_control.Activity;
+package com.example.administrator.app_control.Fragment;
 
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.app.LoaderManager;
 import android.app.TimePickerDialog;
-import android.content.Context;
-
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-
-import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-
-
-import android.view.MotionEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -30,22 +17,20 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-
-import com.example.administrator.app_control.Fragment.ScheduleFragment;
-import com.example.administrator.app_control.Other.AlarmReminderDbHelper;
-import com.example.administrator.app_control.Other.Item;
+import com.example.administrator.app_control.Activity.AddReminderActivity;
 import com.example.administrator.app_control.Activity.R;
-import com.example.administrator.app_control.Other.ItemListView;
+import com.example.administrator.app_control.Other.AlarmReminderDbHelper;
+import com.example.administrator.app_control.Other.MqttHelper;
 
-import java.util.ArrayList;
+import org.eclipse.paho.client.mqttv3.MqttException;
+
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-public class AddReminderActivity extends AppCompatActivity
-                            {
 
-
+public class AddScheduleFragment extends Fragment {
     private EditText txtName;
     private TextView mTimeText;
     RelativeLayout relativeLayoutTime,relativeRepeat;
@@ -57,31 +42,43 @@ public class AddReminderActivity extends AppCompatActivity
     private Button btnOK;
 
     private AlarmReminderDbHelper myDB;
-
+    MqttHelper mqttHelper;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_reminder);
-        mTimeText = (TextView) findViewById(R.id.set_time);
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+        // Defines the xml file for the fragment
+        return inflater.inflate(R.layout.add_reminder, parent, false);
+    }
+
+    // This event is triggered soon after onCreateView().
+    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        mTimeText = (TextView) getActivity().findViewById(R.id.set_time);
         mCalendar = Calendar.getInstance();
         mHour = mCalendar.get(Calendar.HOUR_OF_DAY);
         mMinute = mCalendar.get(Calendar.MINUTE);
         mRepeatType = "";
-        txtName = (EditText) findViewById(R.id.schedule_title);
-        relativeLayoutTime = (RelativeLayout) findViewById(R.id.time);
-        relativeRepeat = (RelativeLayout) findViewById(R.id.RepeatType);
-        mRepeatSwitch = (Switch) findViewById(R.id.repeat_switch);
-        btnOK = (Button) findViewById(R.id.btnOK);
+        txtName = (EditText) getActivity().findViewById(R.id.schedule_title);
+        relativeLayoutTime = (RelativeLayout) getActivity().findViewById(R.id.time);
+        relativeRepeat = (RelativeLayout) getActivity().findViewById(R.id.RepeatType);
+        mRepeatSwitch = (Switch) getActivity().findViewById(R.id.repeat_switch);
+        btnOK = (Button) getActivity().findViewById(R.id.btnOK);
+        mqttHelper = new MqttHelper(getActivity(),"tcp://192.168.43.89:1883");
 
 
         relativeLayoutTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(AddReminderActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
-                        mTimeText.setText(hourOfDay +":"+minutes);
+                        if(minutes>10){
+                            mTimeText.setText(hourOfDay +":"+minutes);
+                        } else {
+                            mTimeText.setText(hourOfDay +":0"+minutes);
+                        }
+
                     }
                 }, mHour, mMinute, true);
                 timePickerDialog.show();
@@ -107,7 +104,7 @@ public class AddReminderActivity extends AppCompatActivity
                     final boolean[] checkedItems = new boolean[items.length];
                     mRepeatType = (new StringBuilder()).append("").toString();
                     // Create List Dialog
-                    AlertDialog.Builder builder = new AlertDialog.Builder(AddReminderActivity.this);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle("Select Type");
                     builder.setMultiChoiceItems(items, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
                         @Override
@@ -138,7 +135,7 @@ public class AddReminderActivity extends AppCompatActivity
                                     mRepeatType = mRepeatType + "0";
                                 }
                             }
-                            Toast.makeText(getBaseContext(),mRepeatType,Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(),mRepeatType,Toast.LENGTH_LONG).show();
                         }
                     });
 
@@ -163,7 +160,7 @@ public class AddReminderActivity extends AppCompatActivity
 
                 } else {
                     mRepeatType = "0000000";
-                    Toast.makeText(getBaseContext(),"NO REPEAT CHECKED",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(),"NO REPEAT CHECKED",Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -171,18 +168,33 @@ public class AddReminderActivity extends AppCompatActivity
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                myDB = new AlarmReminderDbHelper(getBaseContext());
+
+                myDB = new AlarmReminderDbHelper(getActivity());
                 boolean checked = mRepeatSwitch.isChecked();
                 if (checked) {
+                    try {
+                        mqttHelper.publishMessage(mTimeText.getText().toString()+"1"+mRepeatType, "schedule");
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                     myDB.insertData(txtName.getText().toString(),mTimeText.getText().toString(),"true",mRepeatType);
                 } else {
+                    try {
+                        mqttHelper.publishMessage(mTimeText.getText().toString()+"0"+mRepeatType, "schedule");
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                     myDB.insertData(txtName.getText().toString(),mTimeText.getText().toString(),"false",mRepeatType);
                 }
 
                 ScheduleFragment fragment = new ScheduleFragment();
-                android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                android.support.v4.app.FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
-                                android.R.anim.fade_out);
+                        android.R.anim.fade_out);
                 fragmentTransaction.replace(R.id.frame, fragment);
                 fragmentTransaction.commitAllowingStateLoss();
 
@@ -190,8 +202,5 @@ public class AddReminderActivity extends AppCompatActivity
             }
         });
 
-        getSupportActionBar().setTitle("Schedule");
-
     }
-
-    }
+}

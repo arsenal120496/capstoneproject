@@ -20,7 +20,7 @@ import java.io.UnsupportedEncodingException;
  */
 
 public class MqttHelper {
-    public MqttAndroidClient mqttAndroidClient;
+    public static  MqttAndroidClient mqttAndroidClient;
 
     final int qos = 0;
 
@@ -57,8 +57,12 @@ public class MqttHelper {
         mqttAndroidClient.setCallback(callback);
     }
 
-    public MqttAndroidClient getMqttAndroidClient() {
+    public static MqttAndroidClient getMqttAndroidClient() {
         return mqttAndroidClient;
+    }
+
+    public static void setMqttAndroidClient(MqttAndroidClient mqttAndroidClient) {
+        MqttHelper.mqttAndroidClient = mqttAndroidClient;
     }
 
     private void connect(){

@@ -12,6 +12,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,10 +36,7 @@ import java.util.ArrayList;
 public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private FloatingActionButton btnAddRemider;
     AlarmCursorApdater mCursorAdapter;
-    AlarmReminderDbHelper alarmReminderDbHelper;
-    private FloatingActionButton btnFab;
     ListView itemListView;
-    ProgressDialog prgDialog;
     ArrayList<Item> arr = null;
     Context context;
 
@@ -70,8 +69,11 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
         btnAddRemider.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, AddReminderActivity.class);
-                startActivity(intent);
+                AddScheduleFragment fragment2 = new AddScheduleFragment();
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+                fragmentTransaction.replace(R.id.frame, fragment2);
+                fragmentTransaction.commit();
             }
         });
 

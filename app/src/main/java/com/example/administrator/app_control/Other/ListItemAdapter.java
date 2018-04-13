@@ -10,11 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
 
 import com.example.administrator.app_control.Activity.R;
+import com.example.administrator.app_control.Fragment.ScheduleFragment;
 
 import java.util.List;
 
@@ -24,11 +26,15 @@ public class ListItemAdapter extends BaseAdapter {
     private List<Item> listItem;
     private LayoutInflater layoutInflater;
     private Context context;
+    private TextView txtID;
+    private Switch aSwitch;
+    ScheduleFragment.ISchedulerListener iSchedulerListener;
 
-    public ListItemAdapter(List<Item> listItem, Context context) {
+    public ListItemAdapter(List<Item> listItem, Context context, ScheduleFragment.ISchedulerListener iSchedulerListener) {
         this.listItem = listItem;
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
+        this.iSchedulerListener = iSchedulerListener;
     }
     @Override
     public int getCount() {
@@ -50,7 +56,7 @@ public class ListItemAdapter extends BaseAdapter {
         TextView txtDes;
         TextView txtTime;
         TextView txtRepeatype;
-        Switch switchRepeat;
+        Switch switchohpeat;
         TextView txtID;
         if(convertView == null){
             convertView = layoutInflater.inflate(R.layout.item, parent, false);
@@ -59,13 +65,21 @@ public class ListItemAdapter extends BaseAdapter {
         txtTime = (TextView) convertView.findViewById(R.id.recycle_date_time);
         txtRepeatype = (TextView) convertView.findViewById(R.id.recycle_repeat_info);
         txtID = (TextView) convertView.findViewById(R.id.recycle_id);
-        switchRepeat = (Switch) convertView.findViewById(R.id.active_switch);
+        aSwitch = (Switch) convertView.findViewById(R.id.btnActive_switch);
         Item item = getItem(position);
         if(item.getIsActive().equals("1")){
-            switchRepeat.setChecked(true);
+            aSwitch.setChecked(true);
         } else {
-            switchRepeat.setChecked(false);
+            aSwitch.setChecked(false);
         }
+
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                iSchedulerListener.onToggle();
+            }
+        });
+
         txtDes.setText(item.getDescription());
         txtTime.setText(item.getTime());
         String repeatDes = "";

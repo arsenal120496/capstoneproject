@@ -127,7 +127,7 @@ public final class MqttHelper {
         byte[] encodedPayload = new byte[0];
         encodedPayload = msg.getBytes("UTF-8");
         MqttMessage message = new MqttMessage(encodedPayload);
-        message.setRetained(true);
+        message.setRetained(false);
         message.setQos(qos);
         mqttAndroidClient.publish(topic, message);
     }

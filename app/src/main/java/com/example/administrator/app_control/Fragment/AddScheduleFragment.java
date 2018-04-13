@@ -180,6 +180,7 @@ public class AddScheduleFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
+                System.out.println(time);
                 myDB = new AlarmReminderDbHelper(getActivity());
                 arrayList = myDB.getAllCotacts();
                 boolean checked = mRepeatSwitch.isChecked();

@@ -48,13 +48,13 @@ public class RobotFragment extends Fragment {
         btnLeft = (Button) getActivity().findViewById(R.id.btnLeft);
         btnRight = (Button) getActivity().findViewById(R.id.btnRight);
 
-        mqttHelper = new MqttHelper(getActivity(),"tcp://192.168.43.89:1883");
+        mqttHelper = new MqttHelper(getActivity(),"tcp://192.168.1.129:1883");
         btnForward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
                     if(mqttHelper != null) {
-                        mqttHelper.publishMessage("1", "control");
+                        mqttHelper.publishMessage("1", "acc/control");
                     }
                 } catch (MqttException e) {
                     e.printStackTrace();
@@ -69,12 +69,13 @@ public class RobotFragment extends Fragment {
             public void onClick(View v) {
                 try {
                     if(mqttHelper != null) {
-                        mqttHelper.publishMessage("3", "control");
+                        mqttHelper.publishMessage("3", "acc/control");
                     }
                 } catch (MqttException e) {
                     e.printStackTrace();
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
+
                 }
             }
         });
@@ -84,7 +85,7 @@ public class RobotFragment extends Fragment {
             public void onClick(View v) {
                 try {
                     if(mqttHelper != null) {
-                        mqttHelper.publishMessage("4", "control");
+                        mqttHelper.publishMessage("4", "acc/control");
                     }
                 } catch (MqttException e) {
                     e.printStackTrace();
@@ -99,7 +100,7 @@ public class RobotFragment extends Fragment {
             public void onClick(View v) {
                 try {
                     if(mqttHelper != null) {
-                        mqttHelper.publishMessage("2", "control");
+                        mqttHelper.publishMessage("2", "acc/control");
                     }
                 } catch (MqttException e) {
                     e.printStackTrace();

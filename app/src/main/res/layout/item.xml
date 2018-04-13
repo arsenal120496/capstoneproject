@@ -20,7 +20,7 @@
         android:padding="4dp"
         android:layout_marginBottom="4dp"
         android:layout_toRightOf="@id/thumbnail_image"
-        android:layout_toLeftOf="@+id/active_switch"
+        android:layout_toLeftOf="@+id/btnActive_switch"
         android:orientation="vertical">
 
         <TextView
@@ -64,7 +64,7 @@
         android:layout_marginRight="16dp"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
-        android:id="@+id/active_switch"
+        android:id="@+id/btnActive_switch"
         />
 
 

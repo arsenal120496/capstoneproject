@@ -42,40 +42,21 @@ public class ScheduleFragment extends Fragment {
     Switch aSwitch;
     String idItem;
 
+    ISchedulerListener iSchedulerListener = new ISchedulerListener() {
+        @Override
+        public void onToggle() {
+            System.out.println("ok ok");
+        }
+    };
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         // Defines the xml file for the fragment
-        return inflater.inflate(R.layout.fragment_schedule, parent, false);
-    }
 
-    // This event is triggered soon after onCreateView().
-    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        itemListView = (ListView) getActivity().findViewById(R.id.listview);
-        txtNoReminder = (TextView) getActivity().findViewById(R.id.no_reminder_text);
-        txtID = (TextView) getActivity().findViewById(R.id.recycle_id);
-        aSwitch = (Switch) getActivity().findViewById(R.id.active_switch);
-
+        View rootView = inflater.inflate(R.layout.fragment_schedule,parent,false);
+        mqttHelper = new MqttHelper(getActivity(),"tcp://192.168.1.129:1883");
         dbHelper = new AlarmReminderDbHelper(getActivity());
-
-        getListItem();
-
-        btnAddRemider = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-
-        btnAddRemider.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("listItem",arr);
-                AddScheduleFragment fragment2 = new AddScheduleFragment();
-                fragment2.setArguments(bundle);
-                FragmentManager fragmentManager = getFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
-                fragmentTransaction.replace(R.id.frame, fragment2);
-                fragmentTransaction.commit();
-            }
-        });
+        itemListView = (ListView) rootView.findViewById(R.id.listview);
 
         itemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -106,7 +87,6 @@ public class ScheduleFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         dbHelper.deleteData(String.valueOf(l));
                         try {
-                            mqttHelper = new MqttHelper(getActivity(),"tcp://192.168.1.129:1883");
                             mqttHelper.publishMessage("1" + l,"acc/schedule");
                         } catch (MqttException e) {
                             e.printStackTrace();
@@ -142,49 +122,75 @@ public class ScheduleFragment extends Fragment {
                 return true;
             }
         });
+        getListItem();
+        listItemAdapter = new ListItemAdapter(arr,getActivity(), iSchedulerListener);
+        if(listItemAdapter != null){
+            itemListView.setAdapter(listItemAdapter);
+        }
+        return rootView;
+    }
 
-
-        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+    // This event is triggered soon after onCreateView().
+    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        txtNoReminder = (TextView) getActivity().findViewById(R.id.no_reminder_text);
+        btnAddRemider = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        btnAddRemider.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    try {
-                        mqttHelper.publishMessage("3" + txtID.getText() + "1" ,"acc/schedule");
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    // The toggle is disabled
-                    try {
-                        mqttHelper.publishMessage("3" + txtID.getText() +"0" ,"acc/schedule");
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("listItem",arr);
+                AddScheduleFragment fragment2 = new AddScheduleFragment();
+                fragment2.setArguments(bundle);
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+                fragmentTransaction.replace(R.id.frame, fragment2);
+                fragmentTransaction.commit();
             }
         });
+
+
     }
 
     public void getListItem(){
-        if(getActivity() == null){
-            return;
-        }
-
         arr = dbHelper.getAllCotacts();
         if(arr.size() == 0){
-            txtNoReminder.setVisibility(View.VISIBLE);
             return;
         } else {
-            listItemAdapter = new ListItemAdapter(arr,getActivity());
-            itemListView.setAdapter(listItemAdapter);
-            txtNoReminder.setVisibility(View.INVISIBLE);
+            listItemAdapter = new ListItemAdapter(arr,getActivity(), iSchedulerListener);
+            if(listItemAdapter != null){
+                itemListView.setAdapter(listItemAdapter);
+            }
+            aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (b) {
+                        try {
+                            mqttHelper.publishMessage("3" + txtID.getText() + "1" ,"acc/schedule");
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        // The toggle is disabled
+                        try {
+                            mqttHelper.publishMessage("3" + txtID.getText() +"0" ,"acc/schedule");
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
         }
 
     }
-
-
+    public interface ISchedulerListener{
+        void onToggle();
+    }
 }
+
+

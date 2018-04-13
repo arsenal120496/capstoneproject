@@ -19,13 +19,15 @@ import java.io.UnsupportedEncodingException;
  * Created by Khanh Le Tran on 3/29/2018.
  */
 
-public class MqttHelper {
+public final class MqttHelper {
     public static  MqttAndroidClient mqttAndroidClient;
 
     final int qos = 0;
 
+
     final String clientId = "ExampleAndroidClient";
     final String subscriptionTopic = "sensor/+";
+
 
     public MqttHelper(Context context, String url){
         mqttAndroidClient = new MqttAndroidClient(context, url, clientId);
@@ -52,6 +54,7 @@ public class MqttHelper {
         });
         connect();
     }
+
 
     public void setCallback(MqttCallbackExtended callback) {
         mqttAndroidClient.setCallback(callback);

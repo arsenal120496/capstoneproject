@@ -1,47 +1,67 @@
 package com.example.administrator.app_control.Other;
 
 public class Item {
-    String name;
+    String ID;
+    String description;
     String time;
-    String repeat;
-    String repeatype;
+    String isRepeat;
+    String repeatDes;
+    String isActive;
 
-    public void Item ( String name , String time , String repeat,String repeatype){
-        name = this.name;
+    public void Item (String ID, String name , String time , String repeat,String repeatype,String isActive){
+        ID = this.ID;
+        name = this.description;
         time = this.time;
-        repeat = this.repeat;
-        repeatype = this.repeatype;
+        repeat = this.isRepeat;
+        repeatype = this.repeatDes;
+        isActive = this.isActive;
     }
 
-    public void setRepeatype(String repeatype) {
-        this.repeatype = repeatype;
+    public void setIsActive(String isActive) {
+        this.isActive = isActive;
     }
 
-    public String getRepeatype() {
-        return repeatype;
+    public String getIsActive() {
+        return isActive;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getID() {
+        return ID;
     }
 
-    public void setRepeat(String repeat) {
-        this.repeat = repeat;
+    public String getDescription() {
+        return description;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public String getIsRepeat() {
+        return isRepeat;
     }
 
-    public String getName() {
-        return name;
+    public String getRepeatDes() {
+        return repeatDes;
     }
 
     public String getTime() {
         return time;
     }
 
-    public String getRepeat() {
-        return repeat;
+    public void setID(String ID) {
+        this.ID = ID;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setIsRepeat(String isRepeat) {
+        this.isRepeat = isRepeat;
+    }
+
+    public void setRepeatDes(String repeatDes) {
+        this.repeatDes = repeatDes;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 }

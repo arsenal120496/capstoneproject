@@ -17,14 +17,15 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.example.administrator.app_control.Activity.AddReminderActivity;
 import com.example.administrator.app_control.Activity.R;
 import com.example.administrator.app_control.Other.AlarmReminderDbHelper;
+import com.example.administrator.app_control.Other.Item;
 import com.example.administrator.app_control.Other.MqttHelper;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -32,14 +33,16 @@ import java.util.List;
 
 public class AddScheduleFragment extends Fragment {
     private EditText txtName;
-    private TextView mTimeText;
+    private TextView mTimeText,mRepeatTypeView;
     RelativeLayout relativeLayoutTime,relativeRepeat;
     private Calendar mCalendar;
     private int mHour, mMinute;
+    private String time;
     private Switch mRepeatSwitch;
-    private String name;
     private String mRepeatType;
     private Button btnOK;
+    private ArrayList<Item> arrayList;
+
 
     private AlarmReminderDbHelper myDB;
     MqttHelper mqttHelper;
@@ -47,7 +50,7 @@ public class AddScheduleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         // Defines the xml file for the fragment
-        return inflater.inflate(R.layout.add_reminder, parent, false);
+        return inflater.inflate(R.layout.add_schedule, parent, false);
     }
 
     // This event is triggered soon after onCreateView().
@@ -64,8 +67,8 @@ public class AddScheduleFragment extends Fragment {
         relativeRepeat = (RelativeLayout) getActivity().findViewById(R.id.RepeatType);
         mRepeatSwitch = (Switch) getActivity().findViewById(R.id.repeat_switch);
         btnOK = (Button) getActivity().findViewById(R.id.btnOK);
-        mqttHelper = new MqttHelper(getActivity(),"tcp://192.168.43.89:1883");
-
+        mRepeatTypeView = (TextView) getActivity().findViewById(R.id.set_repeat_type);
+        mqttHelper = new MqttHelper(getActivity(),"tcp://192.168.1.129:1883");
 
         relativeLayoutTime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,10 +76,18 @@ public class AddScheduleFragment extends Fragment {
                 TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
-                        if(minutes>10){
+                        if(minutes>=10 && hourOfDay>=10){
                             mTimeText.setText(hourOfDay +":"+minutes);
-                        } else {
+                            time = hourOfDay+minutes+"";
+                        } else if(minutes<10 && hourOfDay>=10){
                             mTimeText.setText(hourOfDay +":0"+minutes);
+                            time = hourOfDay+"0"+minutes;
+                        } else if(minutes>=10 && hourOfDay<10){
+                            mTimeText.setText(hourOfDay +":"+minutes);
+                            time = "0"+hourOfDay+minutes;
+                        } else {
+                            mTimeText.setText("0"+hourOfDay +":0"+minutes);
+                            time = "0"+hourOfDay+"0"+minutes;
                         }
 
                     }
@@ -102,6 +113,9 @@ public class AddScheduleFragment extends Fragment {
 
                     final List<String> itemList = Arrays.asList(items);
                     final boolean[] checkedItems = new boolean[items.length];
+                    for (int i = 0; i < checkedItems.length ; i++) {
+                        checkedItems[i] = true;
+                    }
                     mRepeatType = (new StringBuilder()).append("").toString();
                     // Create List Dialog
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -109,10 +123,8 @@ public class AddScheduleFragment extends Fragment {
                     builder.setMultiChoiceItems(items, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-
                             // Update the current focused item's checked status
                             checkedItems[which] = isChecked;
-
                         }
                     });
 
@@ -135,7 +147,6 @@ public class AddScheduleFragment extends Fragment {
                                     mRepeatType = mRepeatType + "0";
                                 }
                             }
-                            Toast.makeText(getActivity(),mRepeatType,Toast.LENGTH_LONG).show();
                         }
                     });
 
@@ -159,8 +170,8 @@ public class AddScheduleFragment extends Fragment {
                     dialog.show();
 
                 } else {
+                    Toast.makeText(getActivity(),"Need to turn on repeat", Toast.LENGTH_LONG);
                     mRepeatType = "0000000";
-                    Toast.makeText(getActivity(),"NO REPEAT CHECKED",Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -170,25 +181,59 @@ public class AddScheduleFragment extends Fragment {
             public void onClick(View view) {
 
                 myDB = new AlarmReminderDbHelper(getActivity());
+                arrayList = myDB.getAllCotacts();
                 boolean checked = mRepeatSwitch.isChecked();
                 if (checked) {
-                    try {
-                        mqttHelper.publishMessage(mTimeText.getText().toString()+"1"+mRepeatType, "schedule");
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
+                    if (arrayList.size() !=0){
+                        for (int i = 0; i <arrayList.size() ; i++) {
+                            if (arrayList.get(0).getID().equals(String.valueOf(i))){
+                                myDB.insertData((i+1)+"",txtName.getText().toString(),mTimeText.getText().toString(),"1",mRepeatType,"1");
+                                try {
+                                    mqttHelper.publishMessage("1" + (i+1) + time +"1"+mRepeatType+"1","acc/schedule");
+                                } catch (MqttException e) {
+                                    e.printStackTrace();
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            }
+                        }
+                    } else {
+                        myDB.insertData("0",txtName.getText().toString(),mTimeText.getText().toString(),"1",mRepeatType,"1");
+                        try {
+                            mqttHelper.publishMessage("1" + "0" + time +"1"+mRepeatType+"1","acc/schedule");
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    myDB.insertData(txtName.getText().toString(),mTimeText.getText().toString(),"true",mRepeatType);
+
                 } else {
-                    try {
-                        mqttHelper.publishMessage(mTimeText.getText().toString()+"0"+mRepeatType, "schedule");
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
+                    if (arrayList.size() !=0){
+                        for (int i = 0; i <arrayList.size() ; i++) {
+                            if (arrayList.get(i).getID().equals(String.valueOf(i))){
+                                myDB.insertData(""+(i+1),txtName.getText().toString(),mTimeText.getText().toString(),"0",mRepeatType,"1");
+                                try {
+                                    mqttHelper.publishMessage("1" + (i+1) + time +"1"+mRepeatType+"1","acc/schedule");
+                                } catch (MqttException e) {
+                                    e.printStackTrace();
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            }
+                        }
+                    } else {
+                        myDB.insertData("0",txtName.getText().toString(),mTimeText.getText().toString(),"0",mRepeatType,"1");
+                        try {
+                            mqttHelper.publishMessage("1" + "0" + time +"1"+mRepeatType+"1","acc/schedule");
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    myDB.insertData(txtName.getText().toString(),mTimeText.getText().toString(),"false",mRepeatType);
                 }
 
                 ScheduleFragment fragment = new ScheduleFragment();

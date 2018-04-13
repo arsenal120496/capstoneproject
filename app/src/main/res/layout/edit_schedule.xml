@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:text="Name"
+                android:textColorHint="@color/primary_text_disabled_material_dark"
+                android:textSize="20dp"
+                android:layout_marginLeft="12dp"
+                android:layout_height="match_parent" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:id="@+id/edit_name"
+                android:layout_height="50dp">
+                <EditText
+                    android:layout_width="match_parent"
+                    android:id="@+id/edit_schedule_title"
+                    android:layout_marginLeft="12dp"
+                    android:hint="Name"
+                    android:textSize="15dp"
+                    android:singleLine="true"
+                    android:gravity="top|left"
+                    android:scrollHorizontally="false"
+                    android:textColorHint="@color/primary_text_disabled_material_dark"
+                    android:layout_marginRight="16dp"
+                    android:layout_height="140dp"/>
+
+            </RelativeLayout>
+
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:clickable="true"
+                android:id="@+id/edit_time"
+                android:layout_height="80dp">
+
+                <ImageView
+                    android:id="@+id/edit_time_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="32dp"
+                    android:src="@drawable/ic_access_time_grey600_24dp"
+                    android:layout_centerVertical="true" />
+
+                <LinearLayout
+                    android:layout_width="276dp"
+                    android:layout_height="70dp"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@id/edit_time_icon"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/edit_time_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Time"
+                        android:textSize="25dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:id="@+id/edit_set_time"
+                        android:textSize="25dp"
+                        android:editable="true"
+                        android:layout_height="wrap_content"/>
+
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:id="@+id/edit_repeat"
+                android:clickable="true"
+                android:layout_height="72dp">
+
+                <ImageView
+                    android:id="@+id/edit_repeat_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="32dp"
+                    android:src="@drawable/ic_sync_grey600_24dp"
+                    android:layout_centerVertical="true" />
+
+                <LinearLayout
+                    android:layout_width="276dp"
+                    android:layout_height="70dp"
+                    android:orientation="vertical"
+                    android:id="@+id/edit_repeat_ll"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@id/edit_repeat_icon">
+
+                    <TextView
+                        android:id="@+id/edit_repeat_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Repeat"
+                        android:textSize="25dp" />
+
+
+                </LinearLayout>
+
+                <Switch
+                    android:id="@+id/edit_repeat_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginLeft="8dp"
+                    android:checked="false"
+                    android:textOn="On"
+                    android:textOff="Off"/>
+
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:id="@+id/edit_RepeatType"
+                android:clickable="true"
+                android:layout_height="72dp">
+
+                <ImageView
+                    android:id="@+id/edit_repeat_type_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="32dp"
+                    android:src="@drawable/ic_subject_grey600_24dp"
+                    android:layout_centerVertical="true" />
+
+                <LinearLayout
+                    android:layout_width="276dp"
+                    android:layout_height="70dp"
+                    android:orientation="vertical"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@id/edit_repeat_type_icon"
+                    >
+
+                    <TextView
+                        android:id="@+id/edit_repeat_type_text"
+                        android:layout_width="wrap_content"
+                        android:textSize="25dp"
+                        android:layout_height="wrap_content"
+                        android:text="Repeat Type" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:id="@+id/edit_set_repeat_type"
+                        android:textSize="20dp"
+                        android:textColor="@color/abc_secondary_text_material_dark"
+                        android:layout_height="wrap_content"/>
+
+
+                </LinearLayout>
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="72dp">
+
+                <Button
+                    android:layout_width="200dp"
+                    android:layout_height="50dp"
+                    android:id="@+id/btnEdit"
+                    android:text="Edit"
+                    android:layout_centerInParent="true"
+                    />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+
+
+</RelativeLayout>

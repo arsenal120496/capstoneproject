@@ -1,15 +1,18 @@
 package com.example.administrator.app_control.Fragment;
 
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.administrator.app_control.Activity.MainActivity;
 import com.example.administrator.app_control.Activity.R;
 import com.example.administrator.app_control.Other.MqttHelper;
 
@@ -25,9 +28,8 @@ public class RobotFragment extends Fragment {
     private Button btnBackward;
     private Button btnLeft;
     private Button btnRight;
-    private Button btnConnect;
-    private Button btnDisconnect;
-    private EditText txtIP;
+    private Button btnTurnOffFan;
+    private Button btnTurnOnFan;
 
     public MqttHelper mqttHelper;
     MqttAndroidClient mqttAndroidClient;
@@ -47,14 +49,153 @@ public class RobotFragment extends Fragment {
         btnBackward = (Button) getActivity().findViewById(R.id.btnBackward);
         btnLeft = (Button) getActivity().findViewById(R.id.btnLeft);
         btnRight = (Button) getActivity().findViewById(R.id.btnRight);
+        btnTurnOnFan = (Button) getActivity().findViewById(R.id.btnTurnOnFan);
+        btnTurnOffFan = (Button) getActivity().findViewById(R.id.btnTurnOffFan);
 
-        mqttHelper = new MqttHelper(getActivity(),"tcp://192.168.1.129:1883");
-        btnForward.setOnClickListener(new View.OnClickListener() {
+
+        mqttHelper = MainActivity.mqttHelper;
+
+        btnForward.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    btnForward.setBackgroundColor(Color.GREEN);
+                    try {
+                        if(mqttHelper != null) {
+                            mqttHelper.publishMessage("1", "acc/control");
+                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+
+                    }
+                    return true;
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    btnForward.setBackgroundColor(Color.TRANSPARENT);
+                    try {
+                        if(mqttHelper != null) {
+                            mqttHelper.publishMessage("0", "acc/control");
+                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return true;
+            }
+
+        });
+
+        btnBackward.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    btnBackward.setBackgroundColor(Color.GREEN);
+                    try {
+                        if(mqttHelper != null) {
+                            mqttHelper.publishMessage("3", "acc/control");
+                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+
+                    }
+                    return true;
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    btnBackward.setBackgroundColor(android.R.drawable.btn_default);
+                    try {
+                        if(mqttHelper != null) {
+                            mqttHelper.publishMessage("0", "acc/control");
+                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+
+                    }
+                }
+                return true;
+            }
+
+        });
+
+        btnLeft.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    btnLeft.setBackgroundColor(Color.GREEN);
+                    try {
+                        if(mqttHelper != null) {
+                            mqttHelper.publishMessage("4", "acc/control");
+                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+
+                    }
+                    return true;
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    btnLeft.setBackgroundColor(android.R.drawable.btn_default);
+                    try {
+                        if(mqttHelper != null) {
+                            mqttHelper.publishMessage("0", "acc/control");
+                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+
+                    }
+                }
+                return true;
+            }
+
+        });
+
+        btnRight.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    btnRight.setBackgroundColor(Color.GREEN);
+                    try {
+                        if(mqttHelper != null) {
+                            mqttHelper.publishMessage("2", "acc/control");
+                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+
+                    }
+                    return true;
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    btnRight.setBackgroundColor(android.R.drawable.btn_default);
+                    try {
+                        if(mqttHelper != null) {
+                            mqttHelper.publishMessage("0", "acc/control");
+                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+
+                    }
+                }
+                return true;
+            }
+
+        });
+
+        btnTurnOnFan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 try {
                     if(mqttHelper != null) {
-                        mqttHelper.publishMessage("1", "acc/control");
+                        mqttHelper.publishMessage("5", "acc/control");
                     }
                 } catch (MqttException e) {
                     e.printStackTrace();
@@ -64,43 +205,12 @@ public class RobotFragment extends Fragment {
             }
         });
 
-        btnBackward.setOnClickListener(new View.OnClickListener() {
+        btnTurnOffFan.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 try {
                     if(mqttHelper != null) {
-                        mqttHelper.publishMessage("3", "acc/control");
-                    }
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-
-                }
-            }
-        });
-
-        btnLeft.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if(mqttHelper != null) {
-                        mqttHelper.publishMessage("4", "acc/control");
-                    }
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        btnRight.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if(mqttHelper != null) {
-                        mqttHelper.publishMessage("2", "acc/control");
+                        mqttHelper.publishMessage("6", "acc/control");
                     }
                 } catch (MqttException e) {
                     e.printStackTrace();

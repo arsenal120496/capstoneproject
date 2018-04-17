@@ -19,6 +19,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.administrator.app_control.Activity.MainActivity;
 import com.example.administrator.app_control.Activity.R;
 import com.example.administrator.app_control.Other.AlarmReminderDbHelper;
 import com.example.administrator.app_control.Other.Item;
@@ -33,19 +34,20 @@ import java.util.ArrayList;
 
 public class ScheduleFragment extends Fragment {
     private FloatingActionButton btnAddRemider;
-    AlarmReminderDbHelper dbHelper;
-    TextView txtNoReminder, txtID;
-    ListView itemListView;
-    ArrayList<Item> arr;
-    ListItemAdapter listItemAdapter;
-    MqttHelper mqttHelper;
-    Switch aSwitch;
-    String idItem;
+    private AlarmReminderDbHelper dbHelper;
+    private TextView txtNoReminder, txtID;
+    private ListView itemListView;
+    private ArrayList<Item> arr;
+    private ListItemAdapter listItemAdapter;
+    private MqttHelper mqttHelper;
+    private Switch aSwitch;
+    private String idItem;
+    private Context context;
 
     ISchedulerListener iSchedulerListener = new ISchedulerListener() {
         @Override
-        public void onToggle() {
-            System.out.println("ok ok");
+        public Context getContext() {
+            return getActivity();
         }
     };
 
@@ -54,9 +56,11 @@ public class ScheduleFragment extends Fragment {
         // Defines the xml file for the fragment
 
         View rootView = inflater.inflate(R.layout.fragment_schedule,parent,false);
-        mqttHelper = new MqttHelper(getActivity(),"tcp://192.168.1.129:1883");
         dbHelper = new AlarmReminderDbHelper(getActivity());
         itemListView = (ListView) rootView.findViewById(R.id.listview);
+        txtNoReminder = (TextView) rootView.findViewById(R.id.no_reminder_text);
+
+        mqttHelper = MainActivity.mqttHelper;
 
         itemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -64,10 +68,10 @@ public class ScheduleFragment extends Fragment {
                 EditScheduleFragment fragment2 = new EditScheduleFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString("name",arr.get((int)l).getDescription());
-                bundle.putString("repeat",arr.get((int)l).getIsRepeat());
+                bundle.putInt("repeat",arr.get((int)l).getIsRepeat());
                 bundle.putString("time",arr.get((int)l).getTime());
-                bundle.putString("id",arr.get((int)l).getID());
-                bundle.putString("active",arr.get((int)l).getIsActive());
+                bundle.putInt("id",arr.get((int)l).getID());
+                bundle.putInt("active",arr.get((int)l).getIsActive());
                 bundle.putString("repeatype",arr.get((int)l).getRepeatDes());
                 fragment2.setArguments(bundle);
                 FragmentManager fragmentManager = getFragmentManager();
@@ -85,9 +89,11 @@ public class ScheduleFragment extends Fragment {
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dbHelper.deleteData(String.valueOf(l));
+                        dbHelper.deleteData((int)l);
                         try {
-                            mqttHelper.publishMessage("1" + l,"acc/schedule");
+                            if(mqttHelper!=null){
+                                mqttHelper.publishMessage("2" + l,"acc/schedule");
+                            }
                         } catch (MqttException e) {
                             e.printStackTrace();
                         } catch (UnsupportedEncodingException e) {
@@ -134,15 +140,12 @@ public class ScheduleFragment extends Fragment {
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        txtNoReminder = (TextView) getActivity().findViewById(R.id.no_reminder_text);
+
         btnAddRemider = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         btnAddRemider.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("listItem",arr);
                 AddScheduleFragment fragment2 = new AddScheduleFragment();
-                fragment2.setArguments(bundle);
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
                 fragmentTransaction.replace(R.id.frame, fragment2);
@@ -156,40 +159,19 @@ public class ScheduleFragment extends Fragment {
     public void getListItem(){
         arr = dbHelper.getAllCotacts();
         if(arr.size() == 0){
+            txtNoReminder.setVisibility(View.VISIBLE);
             return;
         } else {
+            txtNoReminder.setVisibility(View.INVISIBLE);
             listItemAdapter = new ListItemAdapter(arr,getActivity(), iSchedulerListener);
             if(listItemAdapter != null){
                 itemListView.setAdapter(listItemAdapter);
             }
-            aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if (b) {
-                        try {
-                            mqttHelper.publishMessage("3" + txtID.getText() + "1" ,"acc/schedule");
-                        } catch (MqttException e) {
-                            e.printStackTrace();
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        // The toggle is disabled
-                        try {
-                            mqttHelper.publishMessage("3" + txtID.getText() +"0" ,"acc/schedule");
-                        } catch (MqttException e) {
-                            e.printStackTrace();
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            });
         }
 
     }
     public interface ISchedulerListener{
-        void onToggle();
+        Context getContext();
     }
 }
 

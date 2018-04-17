@@ -15,9 +15,14 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 
+import com.example.administrator.app_control.Activity.MainActivity;
 import com.example.administrator.app_control.Activity.R;
+import com.example.administrator.app_control.Fragment.AddScheduleFragment;
 import com.example.administrator.app_control.Fragment.ScheduleFragment;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
+
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public class ListItemAdapter extends BaseAdapter {
@@ -28,6 +33,9 @@ public class ListItemAdapter extends BaseAdapter {
     private Context context;
     private TextView txtID;
     private Switch aSwitch;
+    private MqttHelper mqttHelper;
+    private AlarmReminderDbHelper alarmReminderDbHelper;
+    private Context ctx;
     ScheduleFragment.ISchedulerListener iSchedulerListener;
 
     public ListItemAdapter(List<Item> listItem, Context context, ScheduleFragment.ISchedulerListener iSchedulerListener) {
@@ -36,6 +44,7 @@ public class ListItemAdapter extends BaseAdapter {
         layoutInflater = LayoutInflater.from(context);
         this.iSchedulerListener = iSchedulerListener;
     }
+
     @Override
     public int getCount() {
         return listItem.size();
@@ -53,12 +62,14 @@ public class ListItemAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        mqttHelper = MainActivity.mqttHelper;
+
         TextView txtDes;
         TextView txtTime;
         TextView txtRepeatype;
         Switch switchohpeat;
-        TextView txtID;
-        if(convertView == null){
+        final TextView txtID;
+        if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.item, parent, false);
         }
         txtDes = (TextView) convertView.findViewById(R.id.recycle_title);
@@ -66,48 +77,77 @@ public class ListItemAdapter extends BaseAdapter {
         txtRepeatype = (TextView) convertView.findViewById(R.id.recycle_repeat_info);
         txtID = (TextView) convertView.findViewById(R.id.recycle_id);
         aSwitch = (Switch) convertView.findViewById(R.id.btnActive_switch);
-        Item item = getItem(position);
-        if(item.getIsActive().equals("1")){
+        final Item item = getItem(position);
+        if (item.getIsActive().equals("1")) {
             aSwitch.setChecked(true);
-        } else {
+        } else if (item.getIsActive().equals("0")) {
             aSwitch.setChecked(false);
         }
-
-        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                iSchedulerListener.onToggle();
-            }
-        });
-
         txtDes.setText(item.getDescription());
         txtTime.setText(item.getTime());
         String repeatDes = "";
         String repeatype = item.getRepeatDes();
         txtID.setText(item.getID());
-        if(item.getIsRepeat().equals("0")){
-            repeatDes +="No repeat";
-        } else if(item.getIsRepeat().equals("1")) {
+
+        ctx = iSchedulerListener.getContext();
+
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                ctx = iSchedulerListener.getContext();
+                //mqttHelper = new MqttHelper(ctx,"tcp://192.168.1.130:1883");
+                alarmReminderDbHelper = new AlarmReminderDbHelper(ctx);
+                if (b) {
+                    alarmReminderDbHelper.updateData(item.getID(),item.getDescription(),item.getTime(),item.getIsRepeat(),item.getRepeatDes(),"1");
+                    try {
+                        if (mqttHelper != null) {
+                            mqttHelper.publishMessage("3" + item.getID() + "1", "acc/schedule");
+                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("CASE 2");
+                    alarmReminderDbHelper.updateData(item.getID(),item.getDescription(),item.getTime(),item.getIsRepeat()+"",item.getRepeatDes(),"0");
+                    try {
+                        if (mqttHelper != null) {
+                            mqttHelper.publishMessage("3" + "0" + "0", "acc/schedule");
+                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+
+        if (item.getIsRepeat().equals("0")) {
+            repeatDes += "No repeat";
+        } else if (item.getIsRepeat().equals("1")) {
             char b = '1';
-            if(repeatype.charAt(0) == b){
+            if (repeatype.charAt(0) == b) {
                 repeatDes += "T2 ";
             }
-            if(repeatype.charAt(1) == b){
+            if (repeatype.charAt(1) == b) {
                 repeatDes += "T3 ";
             }
-            if(repeatype.charAt(2) == b){
+            if (repeatype.charAt(2) == b) {
+                repeatDes += "T4 ";
+            }
+            if (repeatype.charAt(3) == b) {
                 repeatDes += "T5 ";
             }
-            if(repeatype.charAt(3) == b){
-                repeatDes += "T5 ";
-            }
-            if(repeatype.charAt(4) == b){
+            if (repeatype.charAt(4) == b) {
                 repeatDes += "T6 ";
             }
-            if(repeatype.charAt(5) == b){
+            if (repeatype.charAt(5) == b) {
                 repeatDes += "T7 ";
             }
-            if(repeatype.charAt(6) == b){
+            if (repeatype.charAt(6) == b) {
                 repeatDes += "CN ";
             }
         }
@@ -115,6 +155,4 @@ public class ListItemAdapter extends BaseAdapter {
 
         return convertView;
     }
-
 }
-

@@ -10,14 +10,7 @@ import android.view.ViewGroup;
 
 import com.example.administrator.app_control.Activity.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AboutUsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link AboutUsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class AboutUsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {

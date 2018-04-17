@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.administrator.app_control.Activity.MainActivity;
 import com.example.administrator.app_control.Activity.R;
 import com.example.administrator.app_control.Other.AlarmReminderDbHelper;
 import com.example.administrator.app_control.Other.Item;
@@ -42,13 +43,13 @@ public class EditScheduleFragment extends Fragment {
     private int mHour, mMinute;
     private Switch mRepeatSwitch;
     private String mRepeatType;
-    private Button btnEdit;
-    private ArrayList<Item> arrayList;
+    private Button btnEdit,btnEditCancle;
     private String timeSet;
+    private StringBuilder m;
 
 
     private AlarmReminderDbHelper myDB;
-    MqttHelper mqttHelper;
+    private MqttHelper mqttHelper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -62,17 +63,18 @@ public class EditScheduleFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         mTimeText = (TextView) getActivity().findViewById(R.id.edit_set_time);
+        mqttHelper = MainActivity.mqttHelper;
+
         mCalendar = Calendar.getInstance();
         mHour = mCalendar.get(Calendar.HOUR_OF_DAY);
         mMinute = mCalendar.get(Calendar.MINUTE);
-
-
         mRepeatType = "";
         txtName = (EditText) getActivity().findViewById(R.id.edit_schedule_title);
         relativeLayoutTime = (RelativeLayout) getActivity().findViewById(R.id.edit_time);
         relativeRepeat = (RelativeLayout) getActivity().findViewById(R.id.edit_RepeatType);
         mRepeatSwitch = (Switch) getActivity().findViewById(R.id.edit_repeat_switch);
         btnEdit = (Button) getActivity().findViewById(R.id.btnEdit);
+        btnEditCancle = (Button) getActivity().findViewById(R.id.btnCancleEdit);
 
         String name = getArguments().getString("name");
         txtName.setText(name);
@@ -81,7 +83,7 @@ public class EditScheduleFragment extends Fragment {
         mTimeText.setText(time);
 
         final String[] arrayTime = time.split(":");
-
+        timeSet = arrayTime[0]+""+arrayTime[1];
         relativeLayoutTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -90,24 +92,25 @@ public class EditScheduleFragment extends Fragment {
                     public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
                         if(minutes>=10 && hourOfDay>=10){
                             mTimeText.setText(hourOfDay +":"+minutes);
-                            timeSet = hourOfDay+minutes+"";
+                            timeSet = hourOfDay+""+minutes+"";
                         } else if(minutes<10 && hourOfDay>=10){
                             mTimeText.setText(hourOfDay +":0"+minutes);
                             timeSet = hourOfDay+"0"+minutes;
                         } else if(minutes>=10 && hourOfDay<10){
                             mTimeText.setText(hourOfDay +":"+minutes);
-                            timeSet = "0"+hourOfDay+minutes;
+                            timeSet = "0"+hourOfDay+""+minutes;
                         } else {
                             mTimeText.setText("0"+hourOfDay +":0"+minutes);
                             timeSet = "0"+hourOfDay+"0"+minutes;
                         }
                     }
-                }, Integer.parseInt(arrayTime[0]), Integer.parseInt(arrayTime[1]), true);
+                }, Integer.parseInt(arrayTime[0]), Integer.parseInt(arrayTime[1]), false);
                 timePickerDialog.show();
             }
         });
 
-        final String id = getArguments().getString("id");
+        final int id = getArguments().getInt("id");
+        final int active = getArguments().getInt("active");
 
         final String[] items = new String[7];
 
@@ -206,12 +209,15 @@ public class EditScheduleFragment extends Fragment {
             });
         } else if (repeat.equals("1")) {
             mRepeatSwitch.setChecked(true);
+            mRepeatType = getArguments().getString("repeatype");
             relativeRepeat.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     boolean on = mRepeatSwitch.isChecked();
                     if (on) {
                         String repeatype = getArguments().getString("repeatype");
+                        mRepeatType=repeatype;
+                        m = new StringBuilder(repeatype);
                         char b = '1';
                         if (repeatype.charAt(0) == b) {
                             checkedItems[0] = true;
@@ -269,12 +275,15 @@ public class EditScheduleFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // Do something when click positive button
+
                                 for (int i = 0; i < checkedItems.length; i++) {
                                     boolean checked = checkedItems[i];
                                     if (checked) {
-                                        mRepeatType = mRepeatType + "1";
+                                        m.setCharAt(i,'1');
+                                        mRepeatType = m.toString();
                                     } else {
-                                        mRepeatType = mRepeatType + "0";
+                                        m.setCharAt(i,'0');
+                                        mRepeatType = m.toString();
                                     }
                                 }
                             }
@@ -309,18 +318,38 @@ public class EditScheduleFragment extends Fragment {
                     myDB = new AlarmReminderDbHelper(getActivity());
                     boolean checked = mRepeatSwitch.isChecked();
                     if (checked) {
-                        myDB.updateData(id,txtName.getText().toString(),mTimeText.getText().toString(),"1",mRepeatType,"1");
+                        Item tmp = new Item();
+                        tmp.setID(id);
+                        tmp.setDescription(txtName.getText().toString());
+                        tmp.setTime(mTimeText.getText().toString());
+                        tmp.setIsRepeat(1);
+                        tmp.setRepeatDes(mRepeatType);
+                        tmp.setIsActive(active);
+
+                        myDB.updateData(tmp);
                         try {
-                            mqttHelper.publishMessage("1" + id + timeSet +"1"+mRepeatType+"1","acc/schedule");
+                            if(mqttHelper != null) {
+                                mqttHelper.publishMessage("1" + id + timeSet + "1" + mRepeatType + "1", "acc/schedule");
+                            }
                         } catch (MqttException e) {
                             e.printStackTrace();
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
                     } else {
-                        myDB.updateData(id,txtName.getText().toString(),mTimeText.getText().toString(),"0",mRepeatType,"1");
+                        Item tmp = new Item();
+                        tmp.setID(id);
+                        tmp.setDescription(txtName.getText().toString());
+                        tmp.setTime(mTimeText.getText().toString());
+                        tmp.setIsRepeat(0);
+                        tmp.setRepeatDes(mRepeatType);
+                        tmp.setIsActive(active);
+
+                        myDB.updateData(tmp);
                         try {
-                            mqttHelper.publishMessage("1" + id + timeSet +"0"+mRepeatType+"1","acc/schedule");
+                            if(mqttHelper !=null) {
+                                mqttHelper.publishMessage("1" + id + timeSet + "0" + mRepeatType + "1", "acc/schedule");
+                            }
                         } catch (MqttException e) {
                             e.printStackTrace();
                         } catch (UnsupportedEncodingException e) {
@@ -333,8 +362,22 @@ public class EditScheduleFragment extends Fragment {
                             android.R.anim.fade_out);
                     fragmentTransaction.replace(R.id.frame, fragment);
                     fragmentTransaction.commitAllowingStateLoss();
+                    System.out.println(mRepeatType);
+                    System.out.println(timeSet);
                 }
             });
+
+        btnEditCancle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ScheduleFragment fragment = new ScheduleFragment();
+                android.support.v4.app.FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
+                        android.R.anim.fade_out);
+                fragmentTransaction.replace(R.id.frame, fragment);
+                fragmentTransaction.commitAllowingStateLoss();
+            }
+        });
         }}
 
 

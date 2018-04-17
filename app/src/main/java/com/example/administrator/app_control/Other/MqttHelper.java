@@ -1,7 +1,11 @@
 package com.example.administrator.app_control.Other;
 
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -19,53 +23,27 @@ import java.io.UnsupportedEncodingException;
  * Created by Khanh Le Tran on 3/29/2018.
  */
 
-public final class MqttHelper {
-    public static  MqttAndroidClient mqttAndroidClient;
+public final class MqttHelper{
+    public  MqttAndroidClient mqttAndroidClient;
 
     final int qos = 0;
 
+    final String topic = "acc/battery";
 
-    final String clientId = "ExampleAndroidClient";
-    final String subscriptionTopic = "sensor/+";
+    final String clientId = "ExampleAndroidClient";;
 
+    public MqttAndroidClient getMqttAndroidClient() {
+        return mqttAndroidClient;
+    }
 
     public MqttHelper(Context context, String url){
         mqttAndroidClient = new MqttAndroidClient(context, url, clientId);
-        mqttAndroidClient.setCallback(new MqttCallbackExtended() {
-            @Override
-            public void connectComplete(boolean b, String s) {
-
-            }
-
-            @Override
-            public void connectionLost(Throwable throwable) {
-
-            }
-
-            @Override
-            public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-
-            }
-        });
         connect();
     }
 
 
     public void setCallback(MqttCallbackExtended callback) {
         mqttAndroidClient.setCallback(callback);
-    }
-
-    public static MqttAndroidClient getMqttAndroidClient() {
-        return mqttAndroidClient;
-    }
-
-    public static void setMqttAndroidClient(MqttAndroidClient mqttAndroidClient) {
-        MqttHelper.mqttAndroidClient = mqttAndroidClient;
     }
 
     private void connect(){
@@ -101,9 +79,9 @@ public final class MqttHelper {
     }
 
 
-    private void subscribeToTopic() {
+    public void subscribeToTopic() {
         try {
-            mqttAndroidClient.subscribe(subscriptionTopic, 0, null, new IMqttActionListener() {
+            mqttAndroidClient.subscribe(topic, 0, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
 
@@ -132,21 +110,6 @@ public final class MqttHelper {
         mqttAndroidClient.publish(topic, message);
     }
 
-    public void subscribe(
-            @NonNull final String topic) throws MqttException {
-        IMqttToken token = mqttAndroidClient.subscribe(topic, qos);
-        token.setActionCallback(new IMqttActionListener() {
 
-            @Override
-            public void onSuccess(IMqttToken iMqttToken) {
-
-            }
-
-            @Override
-            public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-
-            }
-        });
-    }
 
 }

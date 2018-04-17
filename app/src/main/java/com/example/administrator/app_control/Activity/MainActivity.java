@@ -1,5 +1,6 @@
 package com.example.administrator.app_control.Activity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -26,6 +27,11 @@ import com.example.administrator.app_control.Fragment.HomeFragment;
 import com.example.administrator.app_control.Fragment.RobotFragment;
 import com.example.administrator.app_control.Fragment.ScheduleFragment;
 import com.example.administrator.app_control.Other.CircleTransform;
+import com.example.administrator.app_control.Other.MqttHelper;
+
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -36,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imgNavHeaderBg, imgProfile;
     private TextView txtName;
     private Toolbar toolbar;
+    public static MqttHelper mqttHelper;
 
 
     // urls to load navigation header background image
@@ -52,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG_SCHEDULE = "schedule";
     private static final String TAG_ABOUTUS = "aboutus";
     public static String CURRENT_TAG = TAG_HOME;
-
+    public static String battery_percent = "0";
     // toolbar titles respected to selected nav menu item
     private String[] activityTitles;
 
@@ -64,6 +71,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mqttHelper = new MqttHelper(getBaseContext(),"tcp://192.168.1.130:1883");
+//        mqttHelper.mqttAndroidClient.setCallback(new MqttCallbackExtended() {
+//            @Override
+//            public void connectComplete(boolean reconnect, String serverURI) {
+//                if(reconnect){
+//                    mqttHelper.subscribeToTopic();
+//                }
+//
+//            }
+//            @Override
+//            public void connectionLost(Throwable cause) {
+//
+//            }
+//
+//            @Override
+//            public void messageArrived(String topic, MqttMessage message) throws Exception {
+//               battery_percent = message.getPayload().toString();
+//            }
+//
+//            @Override
+//            public void deliveryComplete(IMqttDeliveryToken token) {
+//
+//            }
+//        });
         setContentView(R.layout.activity_main);
 
         mHandler = new Handler();

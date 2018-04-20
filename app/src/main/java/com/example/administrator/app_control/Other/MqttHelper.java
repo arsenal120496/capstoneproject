@@ -28,9 +28,10 @@ public final class MqttHelper{
 
     final int qos = 0;
 
-    final String topic = "acc/battery";
+    final String batteryTopic = "acc/battery";
+    final String mapTopic = "acc/map";
 
-    final String clientId = "ExampleAndroidClient";;
+    final String clientId = "ExampleAndroidClient";
 
     public MqttAndroidClient getMqttAndroidClient() {
         return mqttAndroidClient;
@@ -63,7 +64,8 @@ public final class MqttHelper{
                     disconnectedBufferOptions.setPersistBuffer(false);
                     disconnectedBufferOptions.setDeleteOldestMessages(false);
                     mqttAndroidClient.setBufferOpts(disconnectedBufferOptions);
-                    subscribeToTopic();
+                    subscribeToBatteryTopic();
+                    subscribeToMapTopic();
                 }
 
                 @Override
@@ -79,9 +81,29 @@ public final class MqttHelper{
     }
 
 
-    public void subscribeToTopic() {
+    public void subscribeToBatteryTopic() {
         try {
-            mqttAndroidClient.subscribe(topic, 0, null, new IMqttActionListener() {
+            mqttAndroidClient.subscribe(batteryTopic, 0, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+
+                }
+            });
+
+        } catch (MqttException ex) {
+            System.err.println("Exceptionst subscribing");
+            ex.printStackTrace();
+        }
+    }
+
+    public void subscribeToMapTopic() {
+        try {
+            mqttAndroidClient.subscribe(mapTopic, 0, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
 

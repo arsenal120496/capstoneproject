@@ -1,19 +1,12 @@
-package com.example.administrator.app_control.Fragment;
-
+package com.example.administrator.app_control.Activity;
 
 import android.graphics.Color;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
 
-import com.example.administrator.app_control.Activity.MainActivity;
-import com.example.administrator.app_control.Activity.R;
 import com.example.administrator.app_control.Other.MqttHelper;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -21,8 +14,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.UnsupportedEncodingException;
 
-
-public class RobotFragment extends Fragment {
+public class RobotActivity extends AppCompatActivity {
 
     private Button btnForward;
     private Button btnBackward;
@@ -35,22 +27,16 @@ public class RobotFragment extends Fragment {
     MqttAndroidClient mqttAndroidClient;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        // Defines the xml file for the fragment
-        return inflater.inflate(R.layout.fragment_robot, parent, false);
-    }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_robot);
 
-    // This event is triggered soon after onCreateView().
-    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-
-        btnForward = (Button) getActivity().findViewById(R.id.btnForward);
-        btnBackward = (Button) getActivity().findViewById(R.id.btnBackward);
-        btnLeft = (Button) getActivity().findViewById(R.id.btnLeft);
-        btnRight = (Button) getActivity().findViewById(R.id.btnRight);
-        btnTurnOnFan = (Button) getActivity().findViewById(R.id.btnTurnOnFan);
-        btnTurnOffFan = (Button) getActivity().findViewById(R.id.btnTurnOffFan);
+        btnForward = (Button) findViewById(R.id.btnForward);
+        btnBackward = (Button) findViewById(R.id.btnBackward);
+        btnLeft = (Button) findViewById(R.id.btnLeft);
+        btnRight = (Button) findViewById(R.id.btnRight);
+        btnTurnOnFan = (Button) findViewById(R.id.btnTurnOnFan);
+        btnTurnOffFan = (Button) findViewById(R.id.btnTurnOffFan);
 
 
         mqttHelper = MainActivity.mqttHelper;
@@ -222,4 +208,5 @@ public class RobotFragment extends Fragment {
 
     }
 
-}
+    }
+

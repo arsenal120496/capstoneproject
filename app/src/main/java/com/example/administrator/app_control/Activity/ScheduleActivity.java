@@ -1,26 +1,18 @@
-package com.example.administrator.app_control.Fragment;
+package com.example.administrator.app_control.Activity;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Bundle;
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.view.LayoutInflater;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.administrator.app_control.Activity.MainActivity;
-import com.example.administrator.app_control.Activity.R;
 import com.example.administrator.app_control.Other.AlarmReminderDbHelper;
 import com.example.administrator.app_control.Other.Item;
 import com.example.administrator.app_control.Other.ListItemAdapter;
@@ -31,8 +23,8 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+public class ScheduleActivity extends AppCompatActivity {
 
-public class ScheduleFragment extends Fragment {
     private FloatingActionButton btnAddRemider;
     private AlarmReminderDbHelper dbHelper;
     private TextView txtNoReminder, txtID;
@@ -44,47 +36,36 @@ public class ScheduleFragment extends Fragment {
     private String idItem;
     private Context context;
 
-    ISchedulerListener iSchedulerListener = new ISchedulerListener() {
-        @Override
-        public Context getContext() {
-            return getActivity();
-        }
-    };
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        // Defines the xml file for the fragment
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_schedule);
 
-        View rootView = inflater.inflate(R.layout.fragment_schedule,parent,false);
-        dbHelper = new AlarmReminderDbHelper(getActivity());
-        itemListView = (ListView) rootView.findViewById(R.id.listview);
-        txtNoReminder = (TextView) rootView.findViewById(R.id.no_reminder_text);
+        dbHelper = new AlarmReminderDbHelper(getBaseContext());
+        itemListView = (ListView) findViewById(R.id.listview);
+        txtNoReminder = (TextView) findViewById(R.id.no_reminder_text);
+        btnAddRemider = (FloatingActionButton) findViewById(R.id.fab);
 
         mqttHelper = MainActivity.mqttHelper;
 
         itemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                EditScheduleFragment fragment2 = new EditScheduleFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("name",arr.get((int)l).getDescription());
-                bundle.putInt("repeat",arr.get((int)l).getIsRepeat());
-                bundle.putString("time",arr.get((int)l).getTime());
-                bundle.putInt("id",arr.get((int)l).getID());
-                bundle.putInt("active",arr.get((int)l).getIsActive());
-                bundle.putString("repeatype",arr.get((int)l).getRepeatDes());
-                fragment2.setArguments(bundle);
-                FragmentManager fragmentManager = getFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
-                fragmentTransaction.replace(R.id.frame, fragment2);
-                fragmentTransaction.commit();
+                Intent intent = new Intent(ScheduleActivity.this,EditScheduleActivity.class);
+                intent.putExtra("name",arr.get((int)l).getDescription());
+                intent.putExtra("repeat",arr.get((int)l).getIsRepeat());
+                intent.putExtra("time",arr.get((int)l).getTime());
+                intent.putExtra("id",arr.get((int)l).getID());
+                intent.putExtra("active",arr.get((int)l).getIsActive());
+                intent.putExtra("repeatype",arr.get((int)l).getRepeatDes());
+                startActivity(intent);
             }
         });
 
         itemListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, final long l) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
                 builder.setTitle("Do you want to delete this schedule ?");
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
@@ -99,12 +80,8 @@ public class ScheduleFragment extends Fragment {
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
-                        Toast.makeText(getActivity(),"Delete successfull",Toast.LENGTH_LONG);
-                        ScheduleFragment fragment2 = new ScheduleFragment();
-                        FragmentManager fragmentManager = getFragmentManager();
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
-                        fragmentTransaction.replace(R.id.frame, fragment2);
-                        fragmentTransaction.commit();
+                        Intent i = new Intent(ScheduleActivity.this,ScheduleActivity.class);
+                        startActivity(i);
                     }
                 });
 
@@ -129,31 +106,19 @@ public class ScheduleFragment extends Fragment {
             }
         });
         getListItem();
-        listItemAdapter = new ListItemAdapter(arr,getActivity(), iSchedulerListener);
+        listItemAdapter = new ListItemAdapter(arr,getBaseContext());
         if(listItemAdapter != null){
             itemListView.setAdapter(listItemAdapter);
         }
-        return rootView;
-    }
 
-    // This event is triggered soon after onCreateView().
-    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        btnAddRemider = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         btnAddRemider.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AddScheduleFragment fragment2 = new AddScheduleFragment();
-                FragmentManager fragmentManager = getFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
-                fragmentTransaction.replace(R.id.frame, fragment2);
-                fragmentTransaction.commit();
+                Intent i = new Intent(ScheduleActivity.this,AddScheduleActivity.class);
+                startActivity(i);
             }
         });
-
-
     }
 
     public void getListItem(){
@@ -163,16 +128,11 @@ public class ScheduleFragment extends Fragment {
             return;
         } else {
             txtNoReminder.setVisibility(View.INVISIBLE);
-            listItemAdapter = new ListItemAdapter(arr,getActivity(), iSchedulerListener);
+            listItemAdapter = new ListItemAdapter(arr,getBaseContext());
             if(listItemAdapter != null){
                 itemListView.setAdapter(listItemAdapter);
             }
         }
 
     }
-    public interface ISchedulerListener{
-        Context getContext();
-    }
 }
-
-

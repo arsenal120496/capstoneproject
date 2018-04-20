@@ -1,40 +1,31 @@
-package com.example.administrator.app_control.Fragment;
+package com.example.administrator.app_control.Activity;
 
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
-import com.example.administrator.app_control.Activity.MainActivity;
-import com.example.administrator.app_control.Activity.R;
 import com.example.administrator.app_control.Other.AlarmReminderDbHelper;
 import com.example.administrator.app_control.Other.Item;
 import com.example.administrator.app_control.Other.MqttHelper;
 
-
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-
-public class EditScheduleFragment extends Fragment {
+public class EditScheduleActivity extends AppCompatActivity {
 
     private EditText txtName;
     private TextView mTimeText;
@@ -51,35 +42,31 @@ public class EditScheduleFragment extends Fragment {
     private AlarmReminderDbHelper myDB;
     private MqttHelper mqttHelper;
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        // Defines the xml file for the fragmen
 
-        return inflater.inflate(R.layout.edit_schedule, parent, false);
-    }
-
-    // This event is triggered soon after onCreateView().
-    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        mTimeText = (TextView) getActivity().findViewById(R.id.edit_set_time);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_edit_schedule);
+
+        mTimeText = (TextView) findViewById(R.id.edit_set_time);
         mqttHelper = MainActivity.mqttHelper;
 
         mCalendar = Calendar.getInstance();
         mHour = mCalendar.get(Calendar.HOUR_OF_DAY);
         mMinute = mCalendar.get(Calendar.MINUTE);
         mRepeatType = "";
-        txtName = (EditText) getActivity().findViewById(R.id.edit_schedule_title);
-        relativeLayoutTime = (RelativeLayout) getActivity().findViewById(R.id.edit_time);
-        relativeRepeat = (RelativeLayout) getActivity().findViewById(R.id.edit_RepeatType);
-        mRepeatSwitch = (Switch) getActivity().findViewById(R.id.edit_repeat_switch);
-        btnEdit = (Button) getActivity().findViewById(R.id.btnEdit);
-        btnEditCancle = (Button) getActivity().findViewById(R.id.btnCancleEdit);
+        txtName = (EditText) findViewById(R.id.edit_schedule_title);
+        relativeLayoutTime = (RelativeLayout) findViewById(R.id.edit_time);
+        relativeRepeat = (RelativeLayout) findViewById(R.id.edit_RepeatType);
+        mRepeatSwitch = (Switch) findViewById(R.id.edit_repeat_switch);
+        btnEdit = (Button) findViewById(R.id.btnEdit);
+        btnEditCancle = (Button) findViewById(R.id.btnCancleEdit);
 
-        String name = getArguments().getString("name");
+        final Intent intent = getIntent();
+        String name = intent.getStringExtra("name");
         txtName.setText(name);
         txtName.setEnabled(false);
-        String time = getArguments().getString("time");
+        String time = intent.getStringExtra("time");
         mTimeText.setText(time);
 
         final String[] arrayTime = time.split(":");
@@ -87,7 +74,7 @@ public class EditScheduleFragment extends Fragment {
         relativeLayoutTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(getBaseContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
                         if(minutes>=10 && hourOfDay>=10){
@@ -109,8 +96,8 @@ public class EditScheduleFragment extends Fragment {
             }
         });
 
-        final int id = getArguments().getInt("id");
-        final int active = getArguments().getInt("active");
+        final int id = intent.getIntExtra("id",0);
+        final int active = intent.getIntExtra("active",0);
 
         final String[] items = new String[7];
 
@@ -125,7 +112,7 @@ public class EditScheduleFragment extends Fragment {
         final List<String> itemList = Arrays.asList(items);
         final boolean[] checkedItems = new boolean[items.length];
 
-        String repeat = getArguments().getString("repeat");
+        String repeat = intent.getStringExtra("repeat");
         if (repeat.equals("0")) {
             mRepeatSwitch.setChecked(false);
             relativeRepeat.setOnClickListener(new View.OnClickListener() {
@@ -150,7 +137,7 @@ public class EditScheduleFragment extends Fragment {
                         }
                         mRepeatType = (new StringBuilder()).append("").toString();
                         // Create List Dialog
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
                         builder.setTitle("Select Type");
                         builder.setMultiChoiceItems(items, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
@@ -202,20 +189,19 @@ public class EditScheduleFragment extends Fragment {
                         dialog.show();
 
                     } else {
-                        Toast.makeText(getActivity(),"Need to turn on repeat", Toast.LENGTH_LONG);
                         mRepeatType = "0000000";
                     }
                 }
             });
         } else if (repeat.equals("1")) {
             mRepeatSwitch.setChecked(true);
-            mRepeatType = getArguments().getString("repeatype");
+            mRepeatType = intent.getStringExtra("repeatype");
             relativeRepeat.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     boolean on = mRepeatSwitch.isChecked();
                     if (on) {
-                        String repeatype = getArguments().getString("repeatype");
+                        String repeatype = intent.getStringExtra("repeatype");
                         mRepeatType=repeatype;
                         m = new StringBuilder(repeatype);
                         char b = '1';
@@ -254,7 +240,7 @@ public class EditScheduleFragment extends Fragment {
                         } else {
                             checkedItems[6] = false;
                         }
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
                         builder.setTitle("Select Type");
                         builder.setMultiChoiceItems(items, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
@@ -312,72 +298,62 @@ public class EditScheduleFragment extends Fragment {
 
 
 
-            btnEdit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    myDB = new AlarmReminderDbHelper(getActivity());
-                    boolean checked = mRepeatSwitch.isChecked();
-                    if (checked) {
-                        Item tmp = new Item();
-                        tmp.setID(id);
-                        tmp.setDescription(txtName.getText().toString());
-                        tmp.setTime(mTimeText.getText().toString());
-                        tmp.setIsRepeat(1);
-                        tmp.setRepeatDes(mRepeatType);
-                        tmp.setIsActive(active);
+        btnEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                myDB = new AlarmReminderDbHelper(getBaseContext());
+                boolean checked = mRepeatSwitch.isChecked();
+                if (checked) {
+                    Item tmp = new Item();
+                    tmp.setID(id);
+                    tmp.setDescription(txtName.getText().toString());
+                    tmp.setTime(mTimeText.getText().toString());
+                    tmp.setIsRepeat(1);
+                    tmp.setRepeatDes(mRepeatType);
+                    tmp.setIsActive(active);
 
-                        myDB.updateData(tmp);
-                        try {
-                            if(mqttHelper != null) {
-                                mqttHelper.publishMessage("1" + id + timeSet + "1" + mRepeatType + "1", "acc/schedule");
-                            }
-                        } catch (MqttException e) {
-                            e.printStackTrace();
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
+                    myDB.updateData(tmp);
+                    try {
+                        if(mqttHelper != null) {
+                            mqttHelper.publishMessage("1" + id + timeSet + "1" + mRepeatType + "1", "acc/schedule");
                         }
-                    } else {
-                        Item tmp = new Item();
-                        tmp.setID(id);
-                        tmp.setDescription(txtName.getText().toString());
-                        tmp.setTime(mTimeText.getText().toString());
-                        tmp.setIsRepeat(0);
-                        tmp.setRepeatDes(mRepeatType);
-                        tmp.setIsActive(active);
-
-                        myDB.updateData(tmp);
-                        try {
-                            if(mqttHelper !=null) {
-                                mqttHelper.publishMessage("1" + id + timeSet + "0" + mRepeatType + "1", "acc/schedule");
-                            }
-                        } catch (MqttException e) {
-                            e.printStackTrace();
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
                     }
-                    ScheduleFragment fragment = new ScheduleFragment();
-                    android.support.v4.app.FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
-                            android.R.anim.fade_out);
-                    fragmentTransaction.replace(R.id.frame, fragment);
-                    fragmentTransaction.commitAllowingStateLoss();
-                    System.out.println(mRepeatType);
-                    System.out.println(timeSet);
+                } else {
+                    Item tmp = new Item();
+                    tmp.setID(id);
+                    tmp.setDescription(txtName.getText().toString());
+                    tmp.setTime(mTimeText.getText().toString());
+                    tmp.setIsRepeat(0);
+                    tmp.setRepeatDes(mRepeatType);
+                    tmp.setIsActive(active);
+
+                    myDB.updateData(tmp);
+                    try {
+                        if(mqttHelper !=null) {
+                            mqttHelper.publishMessage("1" + id + timeSet + "0" + mRepeatType + "1", "acc/schedule");
+                        }
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                 }
-            });
+                Intent intent1 = new Intent(EditScheduleActivity.this,ScheduleActivity.class);
+                startActivity(intent1);
+            }
+        });
 
         btnEditCancle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ScheduleFragment fragment = new ScheduleFragment();
-                android.support.v4.app.FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
-                        android.R.anim.fade_out);
-                fragmentTransaction.replace(R.id.frame, fragment);
-                fragmentTransaction.commitAllowingStateLoss();
+                Intent intent1 = new Intent(EditScheduleActivity.this,ScheduleActivity.class);
+                startActivity(intent1);
             }
         });
-        }}
+    }
 
-
+}

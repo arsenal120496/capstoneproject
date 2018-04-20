@@ -1,24 +1,19 @@
-package com.example.administrator.app_control.Fragment;
-
+package com.example.administrator.app_control.Activity;
 
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
-import com.example.administrator.app_control.Activity.MainActivity;
-import com.example.administrator.app_control.Activity.R;
 import com.example.administrator.app_control.Other.AlarmReminderDbHelper;
 import com.example.administrator.app_control.Other.Item;
 import com.example.administrator.app_control.Other.MqttHelper;
@@ -31,8 +26,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+public class AddScheduleActivity extends AppCompatActivity {
 
-public class AddScheduleFragment extends Fragment {
     private EditText txtName;
     private TextView mTimeText, mRepeatTypeView;
     RelativeLayout relativeLayoutTime, relativeRepeat;
@@ -50,36 +45,30 @@ public class AddScheduleFragment extends Fragment {
     private MqttHelper mqttHelper;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        // Defines the xml file for the fragment
-        return inflater.inflate(R.layout.add_schedule, parent, false);
-    }
-
-    // This event is triggered soon after onCreateView().
-    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_schedule);
 
         mqttHelper = MainActivity.mqttHelper;
 
-        mTimeText = (TextView) getActivity().findViewById(R.id.set_time);
+        mTimeText = (TextView) findViewById(R.id.set_time);
         mCalendar = Calendar.getInstance();
         mHour = mCalendar.get(Calendar.HOUR_OF_DAY);
         mMinute = mCalendar.get(Calendar.MINUTE);
         mRepeatType = "1111111";
-        txtName = (EditText) getActivity().findViewById(R.id.schedule_title);
-        relativeLayoutTime = (RelativeLayout) getActivity().findViewById(R.id.time);
-        relativeRepeat = (RelativeLayout) getActivity().findViewById(R.id.RepeatType);
-        mRepeatSwitch = (Switch) getActivity().findViewById(R.id.repeat_switch);
-        btnOK = (Button) getActivity().findViewById(R.id.btnOK);
-        btnCancle = (Button) getActivity().findViewById(R.id.btnCancle);
-        mRepeatTypeView = (TextView) getActivity().findViewById(R.id.set_repeat_type);
+        txtName = (EditText) findViewById(R.id.schedule_title);
+        relativeLayoutTime = (RelativeLayout) findViewById(R.id.time);
+        relativeRepeat = (RelativeLayout) findViewById(R.id.RepeatType);
+        mRepeatSwitch = (Switch) findViewById(R.id.repeat_switch);
+        btnOK = (Button) findViewById(R.id.btnOK);
+        btnCancle = (Button) findViewById(R.id.btnCancle);
+        mRepeatTypeView = (TextView) findViewById(R.id.set_repeat_type);
 
 
         relativeLayoutTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(getBaseContext(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
                         if (minutes >= 10 && hourOfDay >= 10) {
@@ -109,19 +98,20 @@ public class AddScheduleFragment extends Fragment {
                 if (on) {
                     mRepeatType = "";
                     final String[] items = new String[7];
-                    items[0] = "Monday";
-                    items[1] = "Tuesday";
-                    items[2] = "Wednesday";
-                    items[3] = "Thursday";
-                    items[4] = "Friday";
-                    items[5] = "Saturday";
-                    items[6] = "Sunday";
+                    items[0] = "Everyday";
+                    items[1] = "Monday";
+                    items[2] = "Tuesday";
+                    items[3] = "Wednesday";
+                    items[4] = "Thursday";
+                    items[5] = "Friday";
+                    items[6] = "Saturday";
+                    items[7] = "Sunday";
 
                     final List<String> itemList = Arrays.asList(items);
                     final boolean[] checkedItems = new boolean[items.length];
                     mRepeatType = (new StringBuilder()).append("").toString();
                     // Create List Dialog
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
                     builder.setTitle("Select Type");
                     builder.setMultiChoiceItems(items, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
                         @Override
@@ -142,12 +132,16 @@ public class AddScheduleFragment extends Fragment {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // Do something when click positive button
-                            for (int i = 0; i < checkedItems.length; i++) {
-                                boolean checked = checkedItems[i];
-                                if (checked) {
-                                    mRepeatType = mRepeatType + "1";
-                                } else {
-                                    mRepeatType = mRepeatType + "0";
+                            if(checkedItems[0]) {
+                                mRepeatType = "1111111";
+                            } else {
+                                for (int i = 1; i < checkedItems.length; i++) {
+                                    boolean checked = checkedItems[i];
+                                    if (checked) {
+                                        mRepeatType = mRepeatType + "1";
+                                    } else {
+                                        mRepeatType = mRepeatType + "0";
+                                    }
                                 }
                             }
                         }
@@ -183,7 +177,7 @@ public class AddScheduleFragment extends Fragment {
                 if (!on) {
                     mRepeatType = "0000000";
                 }
-                myDB = new AlarmReminderDbHelper(getActivity());
+                myDB = new AlarmReminderDbHelper(getBaseContext());
                 arrayList = myDB.getAllCotacts();
                 boolean checked = mRepeatSwitch.isChecked();
                 if (arrayList.size() > 1) {
@@ -299,13 +293,8 @@ public class AddScheduleFragment extends Fragment {
                         }
                     }
                 }
-                ScheduleFragment fragment = new ScheduleFragment();
-                android.support.v4.app.FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
-                        android.R.anim.fade_out);
-                fragmentTransaction.replace(R.id.frame, fragment);
-                fragmentTransaction.commitAllowingStateLoss();
-                System.out.println(mRepeatType);
+                Intent intent1 = new Intent(AddScheduleActivity.this,ScheduleActivity.class);
+                startActivity(intent1);
             }
 
         });
@@ -313,16 +302,9 @@ public class AddScheduleFragment extends Fragment {
         btnCancle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ScheduleFragment fragment = new ScheduleFragment();
-                android.support.v4.app.FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
-                        android.R.anim.fade_out);
-                fragmentTransaction.replace(R.id.frame, fragment);
-                fragmentTransaction.commitAllowingStateLoss();
+                Intent intent1 = new Intent(AddScheduleActivity.this,ScheduleActivity.class);
+                startActivity(intent1);
             }
         });
     }
-
-
 }
-

@@ -1,11 +1,6 @@
 package com.example.administrator.app_control.Other;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +12,6 @@ import android.widget.TextView;
 
 import com.example.administrator.app_control.Activity.MainActivity;
 import com.example.administrator.app_control.Activity.R;
-import com.example.administrator.app_control.Fragment.AddScheduleFragment;
-import com.example.administrator.app_control.Fragment.ScheduleFragment;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
@@ -36,13 +29,12 @@ public class ListItemAdapter extends BaseAdapter {
     private MqttHelper mqttHelper;
     private AlarmReminderDbHelper alarmReminderDbHelper;
     private Context ctx;
-    ScheduleFragment.ISchedulerListener iSchedulerListener;
 
-    public ListItemAdapter(List<Item> listItem, Context context, ScheduleFragment.ISchedulerListener iSchedulerListener) {
+
+    public ListItemAdapter(List<Item> listItem, Context context) {
         this.listItem = listItem;
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
-        this.iSchedulerListener = iSchedulerListener;
     }
 
     @Override
@@ -57,7 +49,7 @@ public class ListItemAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return Integer.parseInt(listItem.get(position).getID());
+        return listItem.get(position).getID();
     }
 
     @Override
@@ -78,9 +70,9 @@ public class ListItemAdapter extends BaseAdapter {
         txtID = (TextView) convertView.findViewById(R.id.recycle_id);
         aSwitch = (Switch) convertView.findViewById(R.id.btnActive_switch);
         final Item item = getItem(position);
-        if (item.getIsActive().equals("1")) {
+        if (item.getIsActive() == 1) {
             aSwitch.setChecked(true);
-        } else if (item.getIsActive().equals("0")) {
+        } else if (item.getIsActive() == 0) {
             aSwitch.setChecked(false);
         }
         txtDes.setText(item.getDescription());
@@ -89,16 +81,23 @@ public class ListItemAdapter extends BaseAdapter {
         String repeatype = item.getRepeatDes();
         txtID.setText(item.getID());
 
-        ctx = iSchedulerListener.getContext();
+
 
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ctx = iSchedulerListener.getContext();
-                //mqttHelper = new MqttHelper(ctx,"tcp://192.168.1.130:1883");
+
                 alarmReminderDbHelper = new AlarmReminderDbHelper(ctx);
                 if (b) {
-                    alarmReminderDbHelper.updateData(item.getID(),item.getDescription(),item.getTime(),item.getIsRepeat(),item.getRepeatDes(),"1");
+                    Item tmp = new Item();
+                    tmp.setID(item.getID());
+                    tmp.setDescription(item.getDescription());
+                    tmp.setTime(item.getTime());
+                    tmp.setIsRepeat(item.getIsRepeat());
+                    tmp.setRepeatDes(item.getRepeatDes());
+                    tmp.setIsActive(1);
+
+                    alarmReminderDbHelper.updateData(tmp);
                     try {
                         if (mqttHelper != null) {
                             mqttHelper.publishMessage("3" + item.getID() + "1", "acc/schedule");
@@ -109,8 +108,15 @@ public class ListItemAdapter extends BaseAdapter {
                         e.printStackTrace();
                     }
                 } else {
-                    System.out.println("CASE 2");
-                    alarmReminderDbHelper.updateData(item.getID(),item.getDescription(),item.getTime(),item.getIsRepeat()+"",item.getRepeatDes(),"0");
+                    Item tmp = new Item();
+                    tmp.setID(item.getID());
+                    tmp.setDescription(item.getDescription());
+                    tmp.setTime(item.getTime());
+                    tmp.setIsRepeat(item.getIsRepeat());
+                    tmp.setRepeatDes(item.getRepeatDes());
+                    tmp.setIsActive(0);
+
+                    alarmReminderDbHelper.updateData(tmp);
                     try {
                         if (mqttHelper != null) {
                             mqttHelper.publishMessage("3" + "0" + "0", "acc/schedule");
@@ -125,9 +131,9 @@ public class ListItemAdapter extends BaseAdapter {
         });
 
 
-        if (item.getIsRepeat().equals("0")) {
+        if (item.getIsRepeat()==0) {
             repeatDes += "No repeat";
-        } else if (item.getIsRepeat().equals("1")) {
+        } else if (item.getIsRepeat() == 1) {
             char b = '1';
             if (repeatype.charAt(0) == b) {
                 repeatDes += "T2 ";

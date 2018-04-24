@@ -13,7 +13,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Home"
+        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -28,15 +28,36 @@
         <service
             android:name="org.eclipse.paho.android.service.MqttService"
             android:stopWithTask="true" />
+        <service android:name="org.ros.android.NodeMainExecutorService">
+            33
+            <intent-filter>
+                34
+                <action android:name="org.ros.android.NodeMainExecutorService" />
+                35
+            </intent-filter>
+            36
+        </service>
 
-
-        <activity android:name=".RobotActivity"
-            android:label="Manual Control"/>
-        <activity android:label="Map" android:name=".ViewMapActivity" />
-        <activity android:label="Schedule" android:name=".ScheduleActivity" />
-        <activity android:label="Battery" android:name=".PowerManageActivity" />
-        <activity android:label="Add Schedule" android:name=".AddScheduleActivity" />
-        <activity android:label="Edit Schedule" android:name=".EditScheduleActivity"></activity>
+        <activity android:name=".MapActivity" />
+        <activity
+            android:name=".RobotActivity"
+            android:label="Manual Control" />
+        <activity
+            android:name=".ViewMapActivity"
+            android:label="Map" />
+        <activity
+            android:name=".ScheduleActivity"
+            android:label="Schedule" />
+        <activity
+            android:name=".PowerManageActivity"
+            android:label="Battery" />
+        <activity
+            android:name=".AddScheduleActivity"
+            android:label="Add Schedule" />
+        <activity
+            android:name=".EditScheduleActivity"
+            android:label="Edit Schedule" />
+        <activity android:name=".ViewHistoryActivity"></activity>
     </application>
 
 </manifest>

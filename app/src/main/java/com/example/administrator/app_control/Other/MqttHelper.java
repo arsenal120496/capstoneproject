@@ -122,7 +122,7 @@ public final class MqttHelper{
     }
 
     public void publishMessage(
-                               @NonNull String msg, @NonNull String topic)
+            @NonNull String msg, @NonNull String topic)
             throws MqttException, UnsupportedEncodingException {
         byte[] encodedPayload = new byte[0];
         encodedPayload = msg.getBytes("UTF-8");

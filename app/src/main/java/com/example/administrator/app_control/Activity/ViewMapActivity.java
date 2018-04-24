@@ -6,8 +6,10 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.administrator.app_control.Other.MqttHelper;
@@ -32,6 +34,7 @@ public class ViewMapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_map);
         myImage = (ImageView) findViewById(R.id.imageViewMap);
+
 
         mqttHelper = MainActivity.mqttHelper;
         mqttAndroidClient = mqttHelper.getMqttAndroidClient();

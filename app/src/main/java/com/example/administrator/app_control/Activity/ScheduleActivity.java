@@ -53,11 +53,11 @@ public class ScheduleActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(ScheduleActivity.this,EditScheduleActivity.class);
                 intent.putExtra("name",arr.get((int)l).getDescription());
-                intent.putExtra("repeat",arr.get((int)l).getIsRepeat());
+                intent.putExtra("isRepeat",arr.get((int)l).getIsRepeat());
                 intent.putExtra("time",arr.get((int)l).getTime());
                 intent.putExtra("id",arr.get((int)l).getID());
-                intent.putExtra("active",arr.get((int)l).getIsActive());
-                intent.putExtra("repeatype",arr.get((int)l).getRepeatDes());
+                intent.putExtra("isActive",arr.get((int)l).getIsActive());
+                intent.putExtra("repeatType",arr.get((int)l).getRepeatDes());
                 startActivity(intent);
             }
         });
@@ -65,7 +65,7 @@ public class ScheduleActivity extends AppCompatActivity {
         itemListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, final long l) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
+                AlertDialog.Builder builder = new AlertDialog.Builder(ScheduleActivity.this);
                 builder.setTitle("Do you want to delete this schedule ?");
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
@@ -106,7 +106,7 @@ public class ScheduleActivity extends AppCompatActivity {
             }
         });
         getListItem();
-        listItemAdapter = new ListItemAdapter(arr,getBaseContext());
+        listItemAdapter = new ListItemAdapter(arr,ScheduleActivity.this);
         if(listItemAdapter != null){
             itemListView.setAdapter(listItemAdapter);
         }
@@ -128,11 +128,17 @@ public class ScheduleActivity extends AppCompatActivity {
             return;
         } else {
             txtNoReminder.setVisibility(View.INVISIBLE);
-            listItemAdapter = new ListItemAdapter(arr,getBaseContext());
+            listItemAdapter = new ListItemAdapter(arr,ScheduleActivity.this);
             if(listItemAdapter != null){
                 itemListView.setAdapter(listItemAdapter);
             }
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        listItemAdapter.notifyDataSetChanged();
     }
 }

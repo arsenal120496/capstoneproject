@@ -35,11 +35,12 @@ public class MainActivity extends AppCompatActivity {
             "View map",
             "Manual control",
             "Schedule",
-            "Power management"
+            "Power management",
+            "View History"
 
     } ;
     int[] gridViewImageId = {
-            R.drawable.map, R.drawable.xbox, R.drawable.calendar, R.drawable.battery
+            R.drawable.map, R.drawable.xbox, R.drawable.calendar, R.drawable.battery, R.drawable.medical_history
     };
 
 
@@ -49,29 +50,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mqttHelper = new MqttHelper(getBaseContext(),"tcp://192.168.1.130:1883");
 
-//        mqttHelper.mqttAndroidClient.setCallback(new MqttCallbackExtended() {
-//            @Override
-//            public void connectComplete(boolean reconnect, String serverURI) {
-//                if(reconnect){
-//                    mqttHelper.subscribeToTopic();
-//                }
-//
-//            }
-//            @Override
-//            public void connectionLost(Throwable cause) {
-//
-//            }
-//
-//            @Override
-//            public void messageArrived(String topic, MqttMessage message) throws Exception {
-//               battery_percent = message.getPayload().toString();
-//            }
-//
-//            @Override
-//            public void deliveryComplete(IMqttDeliveryToken token) {
-//
-//            }
-//        });
         setContentView(R.layout.activity_main);
 
         CustomGridView adapterViewAndroid = new CustomGridView(MainActivity.this, gridViewString, gridViewImageId);
@@ -82,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 switch (i){
                     case 0:
-                        Intent intent = new Intent(MainActivity.this, ViewMapActivity.class);
+                        Intent intent = new Intent(MainActivity.this, MapActivity.class);
                         startActivity(intent);
                         break;
                     case 1:
@@ -93,12 +71,11 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent2 = new Intent(MainActivity.this, ScheduleActivity.class);
                         startActivity(intent2);
                         break;
-
                     case 3:
                         Intent intent3 = new Intent(MainActivity.this, PowerManageActivity.class);
                         startActivity(intent3);
                         break;
-                        default: break;
+                    default: break;
                 }
             }
         });

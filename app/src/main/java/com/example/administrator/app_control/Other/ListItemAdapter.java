@@ -28,7 +28,7 @@ public class ListItemAdapter extends BaseAdapter {
     private Switch aSwitch;
     private MqttHelper mqttHelper;
     private AlarmReminderDbHelper alarmReminderDbHelper;
-    private Context ctx;
+
 
 
     public ListItemAdapter(List<Item> listItem, Context context) {
@@ -59,7 +59,6 @@ public class ListItemAdapter extends BaseAdapter {
         TextView txtDes;
         TextView txtTime;
         TextView txtRepeatype;
-        Switch switchohpeat;
         final TextView txtID;
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.item, parent, false);
@@ -70,16 +69,11 @@ public class ListItemAdapter extends BaseAdapter {
         txtID = (TextView) convertView.findViewById(R.id.recycle_id);
         aSwitch = (Switch) convertView.findViewById(R.id.btnActive_switch);
         final Item item = getItem(position);
-        if (item.getIsActive() == 1) {
-            aSwitch.setChecked(true);
-        } else if (item.getIsActive() == 0) {
-            aSwitch.setChecked(false);
-        }
         txtDes.setText(item.getDescription());
         txtTime.setText(item.getTime());
         String repeatDes = "";
         String repeatype = item.getRepeatDes();
-        txtID.setText(item.getID());
+        txtID.setText(item.getID()+"");
 
 
 
@@ -87,13 +81,12 @@ public class ListItemAdapter extends BaseAdapter {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
-                alarmReminderDbHelper = new AlarmReminderDbHelper(ctx);
+                alarmReminderDbHelper = new AlarmReminderDbHelper(context);
                 if (b) {
                     Item tmp = new Item();
                     tmp.setID(item.getID());
                     tmp.setDescription(item.getDescription());
                     tmp.setTime(item.getTime());
-                    tmp.setIsRepeat(item.getIsRepeat());
                     tmp.setRepeatDes(item.getRepeatDes());
                     tmp.setIsActive(1);
 
@@ -112,7 +105,6 @@ public class ListItemAdapter extends BaseAdapter {
                     tmp.setID(item.getID());
                     tmp.setDescription(item.getDescription());
                     tmp.setTime(item.getTime());
-                    tmp.setIsRepeat(item.getIsRepeat());
                     tmp.setRepeatDes(item.getRepeatDes());
                     tmp.setIsActive(0);
 
@@ -130,33 +122,29 @@ public class ListItemAdapter extends BaseAdapter {
             }
         });
 
-
-        if (item.getIsRepeat()==0) {
-            repeatDes += "No repeat";
-        } else if (item.getIsRepeat() == 1) {
-            char b = '1';
-            if (repeatype.charAt(0) == b) {
-                repeatDes += "T2 ";
-            }
-            if (repeatype.charAt(1) == b) {
-                repeatDes += "T3 ";
-            }
-            if (repeatype.charAt(2) == b) {
-                repeatDes += "T4 ";
-            }
-            if (repeatype.charAt(3) == b) {
-                repeatDes += "T5 ";
-            }
-            if (repeatype.charAt(4) == b) {
-                repeatDes += "T6 ";
-            }
-            if (repeatype.charAt(5) == b) {
-                repeatDes += "T7 ";
-            }
-            if (repeatype.charAt(6) == b) {
-                repeatDes += "CN ";
-            }
+        char b = '1';
+        if (repeatype.charAt(0) == b) {
+            repeatDes += "Mon ";
         }
+        if (repeatype.charAt(1) == b) {
+            repeatDes += "Tue ";
+        }
+        if (repeatype.charAt(2) == b) {
+            repeatDes += "Wed ";
+        }
+        if (repeatype.charAt(3) == b) {
+            repeatDes += "Thu ";
+        }
+        if (repeatype.charAt(4) == b) {
+            repeatDes += "Fri ";
+        }
+        if (repeatype.charAt(5) == b) {
+            repeatDes += "Sat ";
+        }
+        if (repeatype.charAt(6) == b) {
+            repeatDes += "Sun";
+        }
+
         txtRepeatype.setText(repeatDes);
 
         return convertView;

@@ -6,13 +6,13 @@
     tools:context=".ViewMapActivity">
 
 
-
     <ImageView
         android:id="@+id/imageViewMap"
-        android:layout_width="186dp"
-        android:layout_height="189dp"
+        android:layout_width="260dp"
+        android:layout_height="260dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:src="@drawable/mapcom"
         android:layout_marginTop="112dp" />
 
 

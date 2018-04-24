@@ -18,9 +18,9 @@ public class AlarmReminderDbHelper extends SQLiteOpenHelper {
     public static final String COLUMN_1 = "ID";
     public static final String COLUMN_2 = "Description";
     public static final String COLUMN_3 = "Time";
-    public static final String COLUMN_4 = "isRepeat";
-    public static final String COLUMN_5 = "RepeatDes";
-    public static final String COLUMN_6 = "isActive";
+    public static final String COLUMN_4 = "RepeatDes";
+    public static final String COLUMN_5 = "isActive";
+    public static final String COLUMN_6 = "isRepeat";
 
     public AlarmReminderDbHelper(Context context){
         super(context,DB_NAME,null,1);
@@ -31,7 +31,7 @@ public class AlarmReminderDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table " + TABLE_NAME + " (ID INT, " +
-                "Des TEXT, time TEXT, isRepeat INT, repeatDes TEXT, isActive INT );");
+                "Description TEXT, Time TEXT, RepeatDes TEXT, isActive INT, isRepeat INT );");
     }
 
     @Override
@@ -45,11 +45,11 @@ public class AlarmReminderDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_1,item.getID());
-        contentValues.put(COLUMN_2,item.getRepeatDes());
+        contentValues.put(COLUMN_2,item.getDescription());
         contentValues.put(COLUMN_3,item.getTime());
-        contentValues.put(COLUMN_4,item.getIsRepeat());
-        contentValues.put(COLUMN_5,item.getRepeatDes());
-        contentValues.put(COLUMN_6,item.getIsActive());
+        contentValues.put(COLUMN_4,item.getRepeatDes());
+        contentValues.put(COLUMN_5,item.getIsActive());
+        contentValues.put(COLUMN_6,item.getIsRepeat());
         int result = (int) db.insert(TABLE_NAME,null,contentValues);
 
         if(result == -1){
@@ -64,9 +64,9 @@ public class AlarmReminderDbHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_2,item.getDescription());
         contentValues.put(COLUMN_3,item.getTime());
-        contentValues.put(COLUMN_4,item.getIsRepeat());
-        contentValues.put(COLUMN_5,item.getRepeatDes());
-        contentValues.put(COLUMN_6,item.getIsActive());
+        contentValues.put(COLUMN_4,item.getRepeatDes());
+        contentValues.put(COLUMN_5,item.getIsActive());
+        contentValues.put(COLUMN_6,item.getIsRepeat());
         int result = (int) db.update(TABLE_NAME,contentValues,COLUMN_1+"=?",new String[]{String.valueOf(item.getID())});
 
         if(result == -1){
@@ -97,9 +97,9 @@ public class AlarmReminderDbHelper extends SQLiteOpenHelper {
             tmp.setID(res.getInt(0));
             tmp.setDescription(res.getString(1));
             tmp.setTime(res.getString(2));
-            tmp.setIsRepeat(res.getInt(3));
-            tmp.setRepeatDes(res.getString(4));
-            tmp.setIsActive(res.getInt(5));
+            tmp.setRepeatDes(res.getString(3));
+            tmp.setIsActive(res.getInt(4));
+            tmp.setIsRepeat(res.getInt(5));
             array_list.add(tmp);
             res.moveToNext();
         }

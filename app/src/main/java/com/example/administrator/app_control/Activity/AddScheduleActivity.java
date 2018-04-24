@@ -4,9 +4,12 @@ import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -21,6 +24,7 @@ import com.example.administrator.app_control.Other.MqttHelper;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.UnsupportedEncodingException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -29,21 +33,21 @@ import java.util.List;
 public class AddScheduleActivity extends AppCompatActivity {
 
     private EditText txtName;
-    private TextView mTimeText, mRepeatTypeView;
-    RelativeLayout relativeLayoutTime, relativeRepeat;
-    private Calendar mCalendar;
-    private int mHour, mMinute;
-    private String time;
-    private Switch mRepeatSwitch;
+    private TextView txtRepeatType;
+    RelativeLayout relativeRepeat;
+    private String timeSet;
     private String mRepeatType;
     private Button btnOK;
     private Button btnCancle;
     private ArrayList<Item> arrayList;
+    private TimePicker timePicker;
+    private int isRepeat;
 
 
     private AlarmReminderDbHelper myDB;
     private MqttHelper mqttHelper;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,135 +55,188 @@ public class AddScheduleActivity extends AppCompatActivity {
 
         mqttHelper = MainActivity.mqttHelper;
 
-        mTimeText = (TextView) findViewById(R.id.set_time);
-        mCalendar = Calendar.getInstance();
-        mHour = mCalendar.get(Calendar.HOUR_OF_DAY);
-        mMinute = mCalendar.get(Calendar.MINUTE);
-        mRepeatType = "1111111";
+        timePicker = (TimePicker) findViewById(R.id.timepick);
         txtName = (EditText) findViewById(R.id.schedule_title);
-        relativeLayoutTime = (RelativeLayout) findViewById(R.id.time);
         relativeRepeat = (RelativeLayout) findViewById(R.id.RepeatType);
-        mRepeatSwitch = (Switch) findViewById(R.id.repeat_switch);
+        txtRepeatType = (TextView) findViewById(R.id.set_repeat_type);
+
         btnOK = (Button) findViewById(R.id.btnOK);
         btnCancle = (Button) findViewById(R.id.btnCancle);
-        mRepeatTypeView = (TextView) findViewById(R.id.set_repeat_type);
 
+        timePicker.setIs24HourView(true);
 
-        relativeLayoutTime.setOnClickListener(new View.OnClickListener() {
+        if (timePicker.getMinute() >= 10 && timePicker.getHour() >= 10) {
+            timeSet = timePicker.getHour() + "" + timePicker.getMinute() + "";
+        } else if (timePicker.getMinute() < 10 && timePicker.getHour() >= 10) {
+            timeSet = timePicker.getHour() + "0" + timePicker.getMinute();
+        } else if (timePicker.getMinute() >= 10 && timePicker.getHour() < 10) {
+            timeSet = "0" + timePicker.getHour() + "" + timePicker.getMinute();
+        } else {
+            timeSet = "0" + timePicker.getHour() + "0" + timePicker.getMinute();
+        }
+
+        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
-            public void onClick(View view) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(getBaseContext(), new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
-                        if (minutes >= 10 && hourOfDay >= 10) {
-                            mTimeText.setText(hourOfDay + ":" + minutes);
-                            time = hourOfDay + "" + minutes + "";
-                        } else if (minutes < 10 && hourOfDay >= 10) {
-                            mTimeText.setText(hourOfDay + ":0" + minutes);
-                            time = hourOfDay + "0" + minutes;
-                        } else if (minutes >= 10 && hourOfDay < 10) {
-                            mTimeText.setText(hourOfDay + ":" + minutes);
-                            time = "0" + hourOfDay + "" + minutes;
-                        } else  {
-                            mTimeText.setText(hourOfDay + ":0" + minutes);
-                            time = "0" + hourOfDay + "0" + minutes;
-                        }
-
-                    }
-                }, mHour, mMinute, false);
-                timePickerDialog.show();
+            public void onTimeChanged(TimePicker timePicker, int hourOfDay, int minutes) {
+                if (minutes >= 10 && hourOfDay >= 10) {
+                    timeSet = hourOfDay + "" + minutes + "";
+                } else if (minutes < 10 && hourOfDay >= 10) {
+                    timeSet = hourOfDay + "0" + minutes;
+                } else if (minutes >= 10 && hourOfDay < 10) {
+                    timeSet = "0" + hourOfDay + "" + minutes;
+                } else {
+                    timeSet = "0" + hourOfDay + "0" + minutes;
+                }
             }
+
         });
 
         relativeRepeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean on = mRepeatSwitch.isChecked();
-                if (on) {
-                    mRepeatType = "";
-                    final String[] items = new String[7];
-                    items[0] = "Everyday";
-                    items[1] = "Monday";
-                    items[2] = "Tuesday";
-                    items[3] = "Wednesday";
-                    items[4] = "Thursday";
-                    items[5] = "Friday";
-                    items[6] = "Saturday";
-                    items[7] = "Sunday";
 
-                    final List<String> itemList = Arrays.asList(items);
-                    final boolean[] checkedItems = new boolean[items.length];
-                    mRepeatType = (new StringBuilder()).append("").toString();
-                    // Create List Dialog
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
-                    builder.setTitle("Select Type");
-                    builder.setMultiChoiceItems(items, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                            // Update the current focused item's checked status
-                            checkedItems[which] = isChecked;
-                        }
-                    });
+                mRepeatType = "";
+                final String[] items = new String[3];
+                items[0] = "Not Repeat";
+                items[1] = "Everyday";
+                items[2] = "More Options";
 
-                    // Specify the dialog is not cancelable
-                    builder.setCancelable(false);
+                final boolean[] checkedItems = new boolean[items.length];
+                final List<String> itemList = Arrays.asList(items);
+                mRepeatType = (new StringBuilder()).append("").toString();
+                // Create List Dialog
+                AlertDialog.Builder builder = new AlertDialog.Builder(AddScheduleActivity.this);
 
-                    // Set a title for alert dialog
-                    builder.setTitle("Select repeat type");
-
-                    // Set the positive/yes button click listener
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Do something when click positive button
-                            if(checkedItems[0]) {
+                builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Update the current focused item's checked status
+                        switch (which){
+                            case 0:
+                                isRepeat = 0;
+                                mRepeatType = "0000000";
+                                txtRepeatType.setText("Not Repeat");
+                                break;
+                            case 1:
+                                isRepeat = 1;
                                 mRepeatType = "1111111";
-                            } else {
-                                for (int i = 1; i < checkedItems.length; i++) {
-                                    boolean checked = checkedItems[i];
-                                    if (checked) {
-                                        mRepeatType = mRepeatType + "1";
-                                    } else {
-                                        mRepeatType = mRepeatType + "0";
+                                txtRepeatType.setText("Mon Tue Wed Thu Fri Sat Sun");
+                                break;
+                            case 2:
+                                isRepeat = 2;
+                                mRepeatType = "";
+                                final String[] itemOfDate = new String[7];
+                                itemOfDate[0] = "Monday";
+                                itemOfDate[1] = "Tuesday";
+                                itemOfDate[2] = "Wednesday";
+                                itemOfDate[3] = "Thursday";
+                                itemOfDate[4] = "Friday";
+                                itemOfDate[5] = "Saturday";
+                                itemOfDate[6] = "Sunday";
+
+                                final boolean[] checkedItemOfDate = new boolean[itemOfDate.length];
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(AddScheduleActivity.this);
+                                builder.setTitle("Select Date");
+                                builder.setMultiChoiceItems(itemOfDate, checkedItemOfDate, new DialogInterface.OnMultiChoiceClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                        // Update the current focused item's checked status
+                                        checkedItemOfDate[which] = isChecked;
                                     }
-                                }
-                            }
+                                });
+
+                                // Specify the dialog is not cancelable
+                                builder.setCancelable(false);
+
+                                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int ii) {
+                                        for (int i = 0; i < checkedItemOfDate.length; i++) {
+                                            boolean checked = checkedItemOfDate[i];
+                                            if (checked) {
+                                                mRepeatType = mRepeatType + "1";
+                                            } else {
+                                                mRepeatType = mRepeatType + "0";
+                                            }
+                                        }
+
+                                    }
+                                });
+
+                                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do something when click the negative button
+                                    }
+                                });
+
+                                // Set the neutral/cancel button click listener
+                                builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Do something when click the neutral button
+                                    }
+                                });
+
+                                AlertDialog dialogDate = builder.create();
+                                dialogDate.show();
+                                break;
+                                default:
+                                    break;
                         }
-                    });
+                    }
+                });
 
-                    // Set the negative/no button click listener
-                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Do something when click the negative button
+                // Specify the dialog is not cancelable
+                builder.setCancelable(false);
+
+                // Set a title for alert dialog
+                builder.setTitle("Select repeat type");
+
+                // Set the positive/yes button click listener
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do something when click positive button
+                        if (checkedItems[0]) {
+                            mRepeatType = "0000000";
+                        } else if (checkedItems[1]) {
+                            mRepeatType = "1111111";
                         }
-                    });
+                    }
+                });
 
-                    // Set the neutral/cancel button click listener
-                    builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Do something when click the neutral button
-                        }
-                    });
+                // Set the negative/no button click listener
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do something when click the negative button
+                    }
+                });
 
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
+                // Set the neutral/cancel button click listener
+                builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do something when click the neutral button
+                    }
+                });
 
-                }
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+
             }
         });
 
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean on = mRepeatSwitch.isChecked();
-                if (!on) {
-                    mRepeatType = "0000000";
-                }
+
                 myDB = new AlarmReminderDbHelper(getBaseContext());
                 arrayList = myDB.getAllCotacts();
-                boolean checked = mRepeatSwitch.isChecked();
+
                 if (arrayList.size() > 1) {
                     boolean check = false;
                     for (int i = 1; i < arrayList.size(); i++) {
@@ -190,15 +247,14 @@ public class AddScheduleActivity extends AppCompatActivity {
                             Item tmp = new Item();
                             tmp.setID(i);
                             tmp.setDescription(txtName.getText().toString());
-                            tmp.setTime(mTimeText.getText().toString());
-                            tmp.setIsRepeat(checked ? 1 : 0);
+                            tmp.setTime(timeSet);
                             tmp.setRepeatDes(mRepeatType);
                             tmp.setIsActive(1);
 
                             myDB.insertData(tmp);
                             try {
                                 if (mqttHelper != null) {
-                                    mqttHelper.publishMessage("1" + ((i) + "") + time + (checked ? "1" : "0") + mRepeatType + "1", "acc/schedule");
+                                    mqttHelper.publishMessage("1" + ((i) + "") + timeSet + mRepeatType + "1", "acc/schedule");
                                 }
                             } catch (MqttException e) {
                                 e.printStackTrace();
@@ -214,15 +270,14 @@ public class AddScheduleActivity extends AppCompatActivity {
                             Item tmp = new Item();
                             tmp.setID(arrayList.size());
                             tmp.setDescription(txtName.getText().toString());
-                            tmp.setTime(mTimeText.getText().toString());
-                            tmp.setIsRepeat(checked ? 1 : 0);
+                            tmp.setTime(timeSet);
                             tmp.setRepeatDes(mRepeatType);
                             tmp.setIsActive(1);
 
                             myDB.insertData(tmp);
                             try {
                                 if (mqttHelper != null) {
-                                    mqttHelper.publishMessage("1" + arrayList.size() + "" + time + (checked ? "1" : "0") + mRepeatType + "1", "acc/schedule");
+                                    mqttHelper.publishMessage("1" + arrayList.size() + "" + timeSet + mRepeatType + "1", "acc/schedule");
                                 }
                             } catch (MqttException e) {
                                 e.printStackTrace();
@@ -236,15 +291,15 @@ public class AddScheduleActivity extends AppCompatActivity {
                     Item tmp = new Item();
                     tmp.setID(0);
                     tmp.setDescription(txtName.getText().toString());
-                    tmp.setTime(mTimeText.getText().toString());
-                    tmp.setIsRepeat(checked ? 1 : 0);
+                    tmp.setTime(timeSet);
                     tmp.setRepeatDes(mRepeatType);
                     tmp.setIsActive(1);
+                    tmp.setIsRepeat(isRepeat);
 
                     myDB.insertData(tmp);
                     try {
                         if (mqttHelper != null) {
-                            mqttHelper.publishMessage("1" + "0" + time + (checked ? "1" : "0") + mRepeatType + "1", "acc/schedule");
+                            mqttHelper.publishMessage("1" + "0" + timeSet + mRepeatType + "1", "acc/schedule");
                         }
                     } catch (MqttException e) {
                         e.printStackTrace();
@@ -257,15 +312,15 @@ public class AddScheduleActivity extends AppCompatActivity {
                         Item tmp = new Item();
                         tmp.setID(0);
                         tmp.setDescription(txtName.getText().toString());
-                        tmp.setTime(mTimeText.getText().toString());
-                        tmp.setIsRepeat(checked ? 1 : 0);
+                        tmp.setTime(timeSet);
                         tmp.setRepeatDes(mRepeatType);
                         tmp.setIsActive(1);
+                        tmp.setIsRepeat(isRepeat);
 
                         myDB.insertData(tmp);
                         try {
                             if (mqttHelper != null) {
-                                mqttHelper.publishMessage("1" + "0" + time + (checked ? "1" : "0") + mRepeatType + "1", "acc/schedule");
+                                mqttHelper.publishMessage("1" + "0" + timeSet + mRepeatType + "1", "acc/schedule");
                             }
                         } catch (MqttException e) {
                             e.printStackTrace();
@@ -276,15 +331,15 @@ public class AddScheduleActivity extends AppCompatActivity {
                         Item tmp = new Item();
                         tmp.setID(1);
                         tmp.setDescription(txtName.getText().toString());
-                        tmp.setTime(mTimeText.getText().toString());
-                        tmp.setIsRepeat(checked ? 1 : 0);
+                        tmp.setTime(timeSet);
                         tmp.setRepeatDes(mRepeatType);
                         tmp.setIsActive(1);
+                        tmp.setIsRepeat(isRepeat);
 
                         myDB.insertData(tmp);
                         try {
                             if (mqttHelper != null) {
-                                mqttHelper.publishMessage("1" + "1" + time + (checked ? "1" : "0") + mRepeatType + "1", "acc/schedule");
+                                mqttHelper.publishMessage("1" + "1" + timeSet + mRepeatType + "1", "acc/schedule");
                             }
                         } catch (MqttException e) {
                             e.printStackTrace();
@@ -293,7 +348,7 @@ public class AddScheduleActivity extends AppCompatActivity {
                         }
                     }
                 }
-                Intent intent1 = new Intent(AddScheduleActivity.this,ScheduleActivity.class);
+                Intent intent1 = new Intent(AddScheduleActivity.this, ScheduleActivity.class);
                 startActivity(intent1);
             }
 
@@ -302,7 +357,7 @@ public class AddScheduleActivity extends AppCompatActivity {
         btnCancle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent1 = new Intent(AddScheduleActivity.this,ScheduleActivity.class);
+                Intent intent1 = new Intent(AddScheduleActivity.this, ScheduleActivity.class);
                 startActivity(intent1);
             }
         });

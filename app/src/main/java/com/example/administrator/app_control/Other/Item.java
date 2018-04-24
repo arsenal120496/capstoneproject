@@ -3,23 +3,22 @@ package com.example.administrator.app_control.Other;
 public class Item {
     int ID;
     String description;
-    String time;
+    int isActive;
     int isRepeat;
     String repeatDes;
-    int isActive;
+    String time;
 
-    public void Item (int ID, String name , String time , int isRepeat,String repeatype,int isActive){
+    public void Item(int ID, String name, String time, String repeatype, int isActive, int isRepeat) {
         ID = this.ID;
         name = this.description;
         time = this.time;
-        isRepeat = this.isRepeat;
         repeatype = this.repeatDes;
         isActive = this.isActive;
+        isRepeat = this.isRepeat;
     }
 
-
     public int getID() {
-        return ID;
+        return this.ID;
     }
 
     public void setID(int ID) {
@@ -27,39 +26,28 @@ public class Item {
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public int getIsActive() {
-        return isActive;
-    }
-
-    public int getIsRepeat() {
-        return isRepeat;
+        return this.isActive;
     }
 
     public void setIsActive(int isActive) {
         this.isActive = isActive;
     }
 
-    public void setIsRepeat(int isRepeat) {
-        this.isRepeat = isRepeat;
-    }
-
     public String getRepeatDes() {
-        return repeatDes;
+        return this.repeatDes;
     }
 
     public String getTime() {
-        return time;
+        return this.time;
     }
-
-
 
     public void setDescription(String description) {
         this.description = description;
     }
-
 
     public void setRepeatDes(String repeatDes) {
         this.repeatDes = repeatDes;
@@ -67,5 +55,13 @@ public class Item {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public int getIsRepeat() {
+        return this.isRepeat;
+    }
+
+    public void setIsRepeat(int isRepeat) {
+        this.isRepeat = isRepeat;
     }
 }

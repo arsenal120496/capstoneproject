@@ -20,11 +20,8 @@ public class RobotActivity extends AppCompatActivity {
     private Button btnBackward;
     private Button btnLeft;
     private Button btnRight;
-    private Button btnTurnOffFan;
-    private Button btnTurnOnFan;
 
     public MqttHelper mqttHelper;
-    MqttAndroidClient mqttAndroidClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +32,6 @@ public class RobotActivity extends AppCompatActivity {
         btnBackward = (Button) findViewById(R.id.btnBackward);
         btnLeft = (Button) findViewById(R.id.btnLeft);
         btnRight = (Button) findViewById(R.id.btnRight);
-        btnTurnOnFan = (Button) findViewById(R.id.btnTurnOnFan);
-        btnTurnOffFan = (Button) findViewById(R.id.btnTurnOffFan);
-
 
         mqttHelper = MainActivity.mqttHelper;
 
@@ -176,37 +170,8 @@ public class RobotActivity extends AppCompatActivity {
 
         });
 
-        btnTurnOnFan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    if(mqttHelper != null) {
-                        mqttHelper.publishMessage("5", "acc/control");
-                    }
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        btnTurnOffFan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    if(mqttHelper != null) {
-                        mqttHelper.publishMessage("6", "acc/control");
-                    }
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
     }
 
-    }
+}
 

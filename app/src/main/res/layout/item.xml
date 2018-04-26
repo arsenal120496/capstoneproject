@@ -11,10 +11,12 @@
         android:id="@+id/recycle_date_time"
         android:layout_width="100dp"
         android:textAlignment="center"
+        android:gravity="center"
+        android:textColor="@color/mdtp_white"
         android:background="@color/mdtp_accent_color_dark"
         android:layout_centerVertical="true"
         android:layout_height="60dp"
-        android:textSize="15sp"
+        android:textSize="30sp"
         />
 
     <LinearLayout
@@ -49,7 +51,7 @@
             android:ellipsize="marquee"
             android:singleLine="true"
             android:layout_height="wrap_content"
-            android:textSize="15sp"
+            android:textSize="12sp"
             tools:text="Repeat No and Type"/>
 
     </LinearLayout>

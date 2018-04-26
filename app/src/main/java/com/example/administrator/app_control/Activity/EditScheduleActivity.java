@@ -35,9 +35,9 @@ public class EditScheduleActivity extends AppCompatActivity {
     private TimePicker timePicker;
     private Button btnEdit,btnEditCancle;
     private TextView txtRepeatType;
-    private String timeSet;
-    private StringBuilder m;
+    private String timeSet,viewRepeatType;
     private int isRepeat1 = -1;
+    private boolean checkTouch = false;
 
     private AlarmReminderDbHelper myDB;
     private MqttHelper mqttHelper;
@@ -50,7 +50,7 @@ public class EditScheduleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_schedule);
 
         mqttHelper = MainActivity.mqttHelper;
-        timePicker = (TimePicker) findViewById(R.id.timepick);
+        timePicker = (TimePicker) findViewById(R.id.edit_timepick);
         txtName = (EditText) findViewById(R.id.edit_schedule_title);
         relativeLayoutTime = (RelativeLayout) findViewById(R.id.edit_time);
         relativeRepeat = (RelativeLayout) findViewById(R.id.edit_RepeatType);
@@ -122,6 +122,7 @@ public class EditScheduleActivity extends AppCompatActivity {
             txtRepeatType.setText(repeatDes);
         }
 
+
         relativeRepeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,9 +137,9 @@ public class EditScheduleActivity extends AppCompatActivity {
                 final List<String> itemList = Arrays.asList(items);
                 mRepeatType = (new StringBuilder()).append("").toString();
                 // Create List Dialog
-                AlertDialog.Builder builder = new AlertDialog.Builder(EditScheduleActivity.this);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(EditScheduleActivity.this);
 
-                builder.setSingleChoiceItems(items, isRepeat, new DialogInterface.OnClickListener() {
+                builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Update the current focused item's checked status
@@ -146,16 +147,17 @@ public class EditScheduleActivity extends AppCompatActivity {
                             case 0:
                                 isRepeat1 = 0;
                                 mRepeatType = "0000000";
-                                txtRepeatType.setText("Not Repeat");
+                                viewRepeatType = "Not Repeat";
                                 break;
                             case 1:
                                 isRepeat1 = 1;
                                 mRepeatType = "1111111";
-                                txtRepeatType.setText("Mon Tue Wed Thu Fri Sat Sun");
+                                viewRepeatType = "Mon Tue Wed Thu Fri Sat Sun";
                                 break;
                             case 2:
                                 isRepeat1 = 2;
                                 mRepeatType = "";
+
                                 final String[] itemOfDate = new String[7];
                                 itemOfDate[0] = "Monday";
                                 itemOfDate[1] = "Tuesday";
@@ -166,11 +168,13 @@ public class EditScheduleActivity extends AppCompatActivity {
                                 itemOfDate[6] = "Sunday";
 
                                 final boolean[] checkedItemOfDate = new boolean[itemOfDate.length];
-                                for (int i = 0; i < repeatType.length(); i++) {
-                                    if(repeatType.charAt(i) == '1'){
-                                        checkedItemOfDate[i] = true;
-                                    } else if(repeatType.charAt(i) == '0'){
-                                        checkedItemOfDate[i] = false;
+                                if(checkTouch == false){
+                                    for (int i = 0; i < repeatType.length(); i++) {
+                                        if(repeatType.charAt(i) == '1'){
+                                            checkedItemOfDate[i] = true;
+                                        } else if(repeatType.charAt(i) == '0'){
+                                            checkedItemOfDate[i] = false;
+                                        }
                                     }
                                 }
 
@@ -180,6 +184,7 @@ public class EditScheduleActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                         // Update the current focused item's checked status
+
                                         checkedItemOfDate[which] = isChecked;
                                     }
                                 });
@@ -191,13 +196,35 @@ public class EditScheduleActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int ii) {
                                         for (int i = 0; i < checkedItemOfDate.length; i++) {
-                                            mRepeatType = "";
                                             boolean checked = checkedItemOfDate[i];
+                                            checkTouch = true;
                                             if (checked) {
                                                 mRepeatType = mRepeatType + "1";
                                             } else {
                                                 mRepeatType = mRepeatType + "0";
                                             }
+                                        }
+                                        System.out.println("check repeat type:" + mRepeatType);
+                                        if (mRepeatType.charAt(0) == '1') {
+                                            viewRepeatType += "Mon ";
+                                        }
+                                        if (mRepeatType.charAt(1) == '1') {
+                                            viewRepeatType += "Tue ";
+                                        }
+                                        if (mRepeatType.charAt(2) == '1') {
+                                            viewRepeatType += "Wed ";
+                                        }
+                                        if (mRepeatType.charAt(3) == '1') {
+                                            viewRepeatType += "Thu ";
+                                        }
+                                        if (mRepeatType.charAt(4) == '1') {
+                                            viewRepeatType += "Fri ";
+                                        }
+                                        if (mRepeatType.charAt(5) == '1') {
+                                            viewRepeatType += "Sat ";
+                                        }
+                                        if (mRepeatType.charAt(6) == '1') {
+                                            viewRepeatType += "Sun";
                                         }
 
                                     }
@@ -237,7 +264,8 @@ public class EditScheduleActivity extends AppCompatActivity {
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Do something when click positive button
+                        txtRepeatType.setText(viewRepeatType);
+                        viewRepeatType = "";
                     }
                 });
 

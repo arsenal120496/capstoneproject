@@ -42,6 +42,7 @@ public class AddScheduleActivity extends AppCompatActivity {
     private ArrayList<Item> arrayList;
     private TimePicker timePicker;
     private int isRepeat;
+    private String viewRepeatType,timeView;
 
 
     private AlarmReminderDbHelper myDB;
@@ -63,16 +64,24 @@ public class AddScheduleActivity extends AppCompatActivity {
         btnOK = (Button) findViewById(R.id.btnOK);
         btnCancle = (Button) findViewById(R.id.btnCancle);
 
+        mRepeatType = "0000000";
+        viewRepeatType = "Not Repeat";
+        txtRepeatType.setText(viewRepeatType);
+
         timePicker.setIs24HourView(true);
 
         if (timePicker.getMinute() >= 10 && timePicker.getHour() >= 10) {
             timeSet = timePicker.getHour() + "" + timePicker.getMinute() + "";
+            timeView = timePicker.getHour() + ":" + timePicker.getMinute();
         } else if (timePicker.getMinute() < 10 && timePicker.getHour() >= 10) {
             timeSet = timePicker.getHour() + "0" + timePicker.getMinute();
+            timeView = timePicker.getHour() + ":0" + timePicker.getMinute();
         } else if (timePicker.getMinute() >= 10 && timePicker.getHour() < 10) {
             timeSet = "0" + timePicker.getHour() + "" + timePicker.getMinute();
+            timeView = timePicker.getHour() + ":" + timePicker.getMinute();
         } else {
             timeSet = "0" + timePicker.getHour() + "0" + timePicker.getMinute();
+            timeView = timePicker.getHour() + ":0" + timePicker.getMinute();
         }
 
         timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
@@ -80,12 +89,16 @@ public class AddScheduleActivity extends AppCompatActivity {
             public void onTimeChanged(TimePicker timePicker, int hourOfDay, int minutes) {
                 if (minutes >= 10 && hourOfDay >= 10) {
                     timeSet = hourOfDay + "" + minutes + "";
+                    timeView = timePicker.getHour() + ":" + timePicker.getMinute();
                 } else if (minutes < 10 && hourOfDay >= 10) {
                     timeSet = hourOfDay + "0" + minutes;
+                    timeView = timePicker.getHour() + ":0" + timePicker.getMinute();
                 } else if (minutes >= 10 && hourOfDay < 10) {
                     timeSet = "0" + hourOfDay + "" + minutes;
+                    timeView = timePicker.getHour() + ":" + timePicker.getMinute();
                 } else {
                     timeSet = "0" + hourOfDay + "0" + minutes;
+                    timeView = timePicker.getHour() + ":0" + timePicker.getMinute() ;
                 }
             }
 
@@ -115,12 +128,12 @@ public class AddScheduleActivity extends AppCompatActivity {
                             case 0:
                                 isRepeat = 0;
                                 mRepeatType = "0000000";
-                                txtRepeatType.setText("Not Repeat");
+                                viewRepeatType = "Not Repeat";
                                 break;
                             case 1:
                                 isRepeat = 1;
                                 mRepeatType = "1111111";
-                                txtRepeatType.setText("Mon Tue Wed Thu Fri Sat Sun");
+                                viewRepeatType = "Mon Tue Wed Thu Fri Sat Sun";
                                 break;
                             case 2:
                                 isRepeat = 2;
@@ -160,7 +173,27 @@ public class AddScheduleActivity extends AppCompatActivity {
                                                 mRepeatType = mRepeatType + "0";
                                             }
                                         }
-
+                                        if (mRepeatType.charAt(0) == '1') {
+                                            viewRepeatType += "Mon ";
+                                        }
+                                        if (mRepeatType.charAt(1) == '1') {
+                                            viewRepeatType += "Tue ";
+                                        }
+                                        if (mRepeatType.charAt(2) == '1') {
+                                            viewRepeatType += "Wed ";
+                                        }
+                                        if (mRepeatType.charAt(3) == '1') {
+                                            viewRepeatType += "Thu ";
+                                        }
+                                        if (mRepeatType.charAt(4) == '1') {
+                                            viewRepeatType += "Fri ";
+                                        }
+                                        if (mRepeatType.charAt(5) == '1') {
+                                            viewRepeatType += "Sat ";
+                                        }
+                                        if (mRepeatType.charAt(6) == '1') {
+                                            viewRepeatType += "Sun";
+                                        }
                                     }
                                 });
 
@@ -198,12 +231,8 @@ public class AddScheduleActivity extends AppCompatActivity {
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Do something when click positive button
-                        if (checkedItems[0]) {
-                            mRepeatType = "0000000";
-                        } else if (checkedItems[1]) {
-                            mRepeatType = "1111111";
-                        }
+                        txtRepeatType.setText(viewRepeatType);
+                        viewRepeatType = "";
                     }
                 });
 
@@ -247,9 +276,10 @@ public class AddScheduleActivity extends AppCompatActivity {
                             Item tmp = new Item();
                             tmp.setID(i);
                             tmp.setDescription(txtName.getText().toString());
-                            tmp.setTime(timeSet);
+                            tmp.setTime(timeView);
                             tmp.setRepeatDes(mRepeatType);
                             tmp.setIsActive(1);
+                            tmp.setIsRepeat(isRepeat);
 
                             myDB.insertData(tmp);
                             try {
@@ -270,9 +300,10 @@ public class AddScheduleActivity extends AppCompatActivity {
                             Item tmp = new Item();
                             tmp.setID(arrayList.size());
                             tmp.setDescription(txtName.getText().toString());
-                            tmp.setTime(timeSet);
+                            tmp.setTime(timeView);
                             tmp.setRepeatDes(mRepeatType);
                             tmp.setIsActive(1);
+                            tmp.setIsRepeat(isRepeat);
 
                             myDB.insertData(tmp);
                             try {
@@ -291,7 +322,7 @@ public class AddScheduleActivity extends AppCompatActivity {
                     Item tmp = new Item();
                     tmp.setID(0);
                     tmp.setDescription(txtName.getText().toString());
-                    tmp.setTime(timeSet);
+                    tmp.setTime(timeView);
                     tmp.setRepeatDes(mRepeatType);
                     tmp.setIsActive(1);
                     tmp.setIsRepeat(isRepeat);
@@ -312,7 +343,7 @@ public class AddScheduleActivity extends AppCompatActivity {
                         Item tmp = new Item();
                         tmp.setID(0);
                         tmp.setDescription(txtName.getText().toString());
-                        tmp.setTime(timeSet);
+                        tmp.setTime(timeView);
                         tmp.setRepeatDes(mRepeatType);
                         tmp.setIsActive(1);
                         tmp.setIsRepeat(isRepeat);
@@ -331,7 +362,7 @@ public class AddScheduleActivity extends AppCompatActivity {
                         Item tmp = new Item();
                         tmp.setID(1);
                         tmp.setDescription(txtName.getText().toString());
-                        tmp.setTime(timeSet);
+                        tmp.setTime(timeView);
                         tmp.setRepeatDes(mRepeatType);
                         tmp.setIsActive(1);
                         tmp.setIsRepeat(isRepeat);

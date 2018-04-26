@@ -74,8 +74,14 @@ public class ListItemAdapter extends BaseAdapter {
         String repeatDes = "";
         String repeatype = item.getRepeatDes();
         txtID.setText(item.getID()+"");
+        int isRepeat = item.getIsRepeat();
+        int isActive = item.getIsActive();
 
-
+        if(isActive == 1){
+            aSwitch.setChecked(true);
+        } else {
+            aSwitch.setChecked(false);
+        }
 
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -89,6 +95,7 @@ public class ListItemAdapter extends BaseAdapter {
                     tmp.setTime(item.getTime());
                     tmp.setRepeatDes(item.getRepeatDes());
                     tmp.setIsActive(1);
+                    tmp.setIsRepeat(item.getIsRepeat());
 
                     alarmReminderDbHelper.updateData(tmp);
                     try {
@@ -107,6 +114,7 @@ public class ListItemAdapter extends BaseAdapter {
                     tmp.setTime(item.getTime());
                     tmp.setRepeatDes(item.getRepeatDes());
                     tmp.setIsActive(0);
+                    tmp.setIsRepeat(item.getIsRepeat());
 
                     alarmReminderDbHelper.updateData(tmp);
                     try {
@@ -122,28 +130,36 @@ public class ListItemAdapter extends BaseAdapter {
             }
         });
 
-        char b = '1';
-        if (repeatype.charAt(0) == b) {
-            repeatDes += "Mon ";
+        if(isRepeat == 0){
+            repeatDes = "Not Repeat";
+        } else if (isRepeat == 1){
+            repeatDes = "Mon Tue Wed Thu Fri Sat Sun";
+        } else if(isRepeat == 2){
+            char b = '1';
+            if (repeatype.charAt(0) == b) {
+                repeatDes += "Mon ";
+            }
+            if (repeatype.charAt(1) == b) {
+                repeatDes += "Tue ";
+            }
+            if (repeatype.charAt(2) == b) {
+                repeatDes += "Wed ";
+            }
+            if (repeatype.charAt(3) == b) {
+                repeatDes += "Thu ";
+            }
+            if (repeatype.charAt(4) == b) {
+                repeatDes += "Fri ";
+            }
+            if (repeatype.charAt(5) == b) {
+                repeatDes += "Sat ";
+            }
+            if (repeatype.charAt(6) == b) {
+                repeatDes += "Sun";
+            }
         }
-        if (repeatype.charAt(1) == b) {
-            repeatDes += "Tue ";
-        }
-        if (repeatype.charAt(2) == b) {
-            repeatDes += "Wed ";
-        }
-        if (repeatype.charAt(3) == b) {
-            repeatDes += "Thu ";
-        }
-        if (repeatype.charAt(4) == b) {
-            repeatDes += "Fri ";
-        }
-        if (repeatype.charAt(5) == b) {
-            repeatDes += "Sat ";
-        }
-        if (repeatype.charAt(6) == b) {
-            repeatDes += "Sun";
-        }
+
+
 
         txtRepeatype.setText(repeatDes);
 

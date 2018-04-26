@@ -28,36 +28,37 @@
         <service
             android:name="org.eclipse.paho.android.service.MqttService"
             android:stopWithTask="true" />
-        <service android:name="org.ros.android.NodeMainExecutorService">
-            33
-            <intent-filter>
-                34
-                <action android:name="org.ros.android.NodeMainExecutorService" />
-                35
-            </intent-filter>
-            36
-        </service>
 
         <activity android:name=".MapActivity" />
         <activity
             android:name=".RobotActivity"
+            android:parentActivityName=".MainActivity"
             android:label="Manual Control" />
         <activity
             android:name=".ViewMapActivity"
+            android:parentActivityName=".MainActivity"
             android:label="Map" />
         <activity
             android:name=".ScheduleActivity"
+            android:parentActivityName=".MainActivity"
             android:label="Schedule" />
         <activity
             android:name=".PowerManageActivity"
+            android:parentActivityName=".MainActivity"
             android:label="Battery" />
         <activity
             android:name=".AddScheduleActivity"
+            android:parentActivityName=".ScheduleActivity"
             android:label="Add Schedule" />
         <activity
             android:name=".EditScheduleActivity"
+            android:parentActivityName=".ScheduleActivity"
             android:label="Edit Schedule" />
-        <activity android:name=".ViewHistoryActivity"></activity>
+        <activity android:name=".ViewHistoryActivity"
+            android:label="History"
+            android:parentActivityName=".MainActivity">
+
+        </activity>
     </application>
 
 </manifest>

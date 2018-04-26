@@ -47,4 +47,9 @@ public class MapActivity extends AppCompatActivity {
         super.onResume();
         listMapAdater.notifyDataSetChanged();
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 }

@@ -54,22 +54,28 @@ public class AddScheduleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_schedule);
 
-        mqttHelper = MainActivity.mqttHelper;
 
+        // Set initial variable
+        mqttHelper = MainActivity.mqttHelper;
+        myDB = new AlarmReminderDbHelper(getBaseContext());
+        arrayList = myDB.getAllCotacts();
+
+        // Set variable for each component
         timePicker = (TimePicker) findViewById(R.id.timepick);
         txtName = (EditText) findViewById(R.id.schedule_title);
         relativeRepeat = (RelativeLayout) findViewById(R.id.RepeatType);
         txtRepeatType = (TextView) findViewById(R.id.set_repeat_type);
-
         btnOK = (Button) findViewById(R.id.btnOK);
         btnCancle = (Button) findViewById(R.id.btnCancle);
 
+
+        // Set initial variable
         mRepeatType = "0000000";
         viewRepeatType = "Not Repeat";
         txtRepeatType.setText(viewRepeatType);
-
         timePicker.setIs24HourView(true);
 
+        // Set time for TimePicker
         if (timePicker.getMinute() >= 10 && timePicker.getHour() >= 10) {
             timeSet = timePicker.getHour() + "" + timePicker.getMinute() + "";
             timeView = timePicker.getHour() + ":" + timePicker.getMinute();
@@ -84,6 +90,8 @@ public class AddScheduleActivity extends AppCompatActivity {
             timeView = timePicker.getHour() + ":0" + timePicker.getMinute();
         }
 
+
+        // Set action on change time
         timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker timePicker, int hourOfDay, int minutes) {
@@ -117,6 +125,7 @@ public class AddScheduleActivity extends AppCompatActivity {
                 final boolean[] checkedItems = new boolean[items.length];
                 final List<String> itemList = Arrays.asList(items);
                 mRepeatType = (new StringBuilder()).append("").toString();
+
                 // Create List Dialog
                 AlertDialog.Builder builder = new AlertDialog.Builder(AddScheduleActivity.this);
 
@@ -262,10 +271,6 @@ public class AddScheduleActivity extends AppCompatActivity {
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                myDB = new AlarmReminderDbHelper(getBaseContext());
-                arrayList = myDB.getAllCotacts();
-
                 if (arrayList.size() > 1) {
                     boolean check = false;
                     for (int i = 1; i < arrayList.size(); i++) {
@@ -378,9 +383,20 @@ public class AddScheduleActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
+                } else if (arrayList.size() >10){
+                    Item tmp = new Item();
+                    tmp.setID(9);
+                    tmp.setDescription(txtName.getText().toString());
+                    tmp.setTime(timeView);
+                    tmp.setRepeatDes(mRepeatType);
+                    tmp.setIsActive(1);
+                    tmp.setIsRepeat(isRepeat);
+
+                    // Update 9th schedule
+                    myDB.updateData(tmp);
                 }
-                Intent intent1 = new Intent(AddScheduleActivity.this, ScheduleActivity.class);
-                startActivity(intent1);
+                Intent intent = new Intent(AddScheduleActivity.this, ScheduleActivity.class);
+                startActivity(intent);
             }
 
         });
@@ -388,8 +404,8 @@ public class AddScheduleActivity extends AppCompatActivity {
         btnCancle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent1 = new Intent(AddScheduleActivity.this, ScheduleActivity.class);
-                startActivity(intent1);
+                Intent intent = new Intent(AddScheduleActivity.this, ScheduleActivity.class);
+                startActivity(intent);
             }
         });
     }

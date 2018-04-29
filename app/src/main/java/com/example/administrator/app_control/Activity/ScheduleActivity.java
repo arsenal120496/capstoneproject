@@ -41,23 +41,31 @@ public class ScheduleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule);
 
+        // Set initial variable
+        mqttHelper = MainActivity.mqttHelper;
         dbHelper = new AlarmReminderDbHelper(getBaseContext());
+
+
+        // Set variable for each component
         itemListView = (ListView) findViewById(R.id.listview);
         txtNoReminder = (TextView) findViewById(R.id.no_reminder_text);
         btnAddRemider = (FloatingActionButton) findViewById(R.id.fab);
 
-        mqttHelper = MainActivity.mqttHelper;
 
+        // Set action for each item in listview
         itemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(ScheduleActivity.this,EditScheduleActivity.class);
+
+                // Send information of an item to EditScheduleActivity
                 intent.putExtra("name",arr.get((int)l).getDescription());
                 intent.putExtra("isRepeat",arr.get((int)l).getIsRepeat());
                 intent.putExtra("time",arr.get((int)l).getTime());
                 intent.putExtra("id",arr.get((int)l).getID());
                 intent.putExtra("isActive",arr.get((int)l).getIsActive());
                 intent.putExtra("repeatType",arr.get((int)l).getRepeatDes());
+
                 startActivity(intent);
             }
         });
@@ -121,6 +129,8 @@ public class ScheduleActivity extends AppCompatActivity {
         });
     }
 
+
+    // Get list item for list view
     public void getListItem(){
         arr = dbHelper.getAllCotacts();
         if(arr.size() == 0){

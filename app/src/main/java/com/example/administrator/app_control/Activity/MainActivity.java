@@ -27,10 +27,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtName;
     private Toolbar toolbar;
     public static MqttHelper mqttHelper;
+    private GridView androidGridView;
 
-
-    GridView androidGridView;
-
+    // Set title item in gridview
     String[] gridViewString = {
             "View map",
             "Manual control",
@@ -39,22 +38,31 @@ public class MainActivity extends AppCompatActivity {
             "View History"
 
     } ;
+
+
+    // Set image item in gridview
     int[] gridViewImageId = {
             R.drawable.map, R.drawable.xbox, R.drawable.calendar, R.drawable.battery, R.drawable.medical_history
     };
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mqttHelper = new MqttHelper(getBaseContext(),"tcp://192.168.1.130:1883");
-
         setContentView(R.layout.activity_main);
 
-        CustomGridView adapterViewAndroid = new CustomGridView(MainActivity.this, gridViewString, gridViewImageId);
+        // Set MQTT connection
+        mqttHelper = new MqttHelper(getBaseContext(),"tcp://192.168.1.130:1883");
+
+
+        // Set variable for gridview menu
         androidGridView=(GridView)findViewById(R.id.grid_view_image_text);
+
+        // Set adapterview
+        CustomGridView adapterViewAndroid = new CustomGridView(MainActivity.this, gridViewString, gridViewImageId);
         androidGridView.setAdapter(adapterViewAndroid);
+
+
         androidGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

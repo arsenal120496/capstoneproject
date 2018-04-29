@@ -28,6 +28,8 @@ public class RobotActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_robot);
 
+
+        // Set variable for each component
         btnForward = (Button) findViewById(R.id.btnForward);
         btnBackward = (Button) findViewById(R.id.btnBackward);
         btnLeft = (Button) findViewById(R.id.btnLeft);

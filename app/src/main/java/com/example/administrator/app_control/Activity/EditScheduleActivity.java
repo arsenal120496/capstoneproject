@@ -49,6 +49,7 @@ public class EditScheduleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_schedule);
 
+        // Set variable for each component
         mqttHelper = MainActivity.mqttHelper;
         timePicker = (TimePicker) findViewById(R.id.edit_timepick);
         txtName = (EditText) findViewById(R.id.edit_schedule_title);
@@ -58,8 +59,8 @@ public class EditScheduleActivity extends AppCompatActivity {
         btnEdit = (Button) findViewById(R.id.btnEdit);
         btnEditCancle = (Button) findViewById(R.id.btnEditCancle);
 
-        timePicker.setIs24HourView(true);
 
+        //Get intent contains information of an item
         final Intent intent = getIntent();
         final String time = intent.getStringExtra("time");
         final String name = intent.getStringExtra("name");
@@ -68,13 +69,17 @@ public class EditScheduleActivity extends AppCompatActivity {
         final int isRepeat = intent.getIntExtra("isRepeat",0);
         final String repeatType = intent.getStringExtra("repeatType");
 
+
+        // Set initial time for TimePicker
         final String[] arrayTime = time.split(":");
         timeSet = arrayTime[0]+""+arrayTime[1];
+        timePicker.setIs24HourView(true);
         timePicker.setHour(Integer.parseInt(arrayTime[0]));
         timePicker.setMinute(Integer.parseInt(arrayTime[1]));
         txtName.setText(name);
 
-        //set time for timepicker
+
+        // Set action on time change
         timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
@@ -90,7 +95,7 @@ public class EditScheduleActivity extends AppCompatActivity {
             }
         });
 
-        //set repeat type view
+        // Set repeat type view
         String repeatDes = "";
         if(isRepeat == 0){
             txtRepeatType.setText("Not Repeat");
